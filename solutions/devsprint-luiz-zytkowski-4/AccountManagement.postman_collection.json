@@ -1,0 +1,150 @@
+{
+	"info": {
+		"_postman_id": "472e4a59-8686-4ed2-b4d0-8f2927f7f3b8",
+		"name": "AccountManagement",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create Account",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"taxId\": \"08332046963\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:7445/account-management/create",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7001",
+					"path": [
+						"account-management",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Balance By Id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:7445/account-management/balance/:accountId",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7001",
+					"path": [
+						"account-management",
+						"balance",
+						":accountId"
+					],
+					"variable": [
+						{
+							"key": "accountId",
+							"value": "dd37e09e-6780-4511-b336-09135acecf6d"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Balance By Tax Id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:7445/account-management/balance-by-tax-id/:taxId",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7001",
+					"path": [
+						"account-management",
+						"balance-by-tax-id",
+						":taxId"
+					],
+					"variable": [
+						{
+							"key": "taxId",
+							"value": "08332046963"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Deposit",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"accountId\": \"4290affb-3d4b-4aa6-8df7-54e5f42530e6\",\r\n    \"amount\": 1500.00\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:7445/account-management/deposit",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7001",
+					"path": [
+						"account-management",
+						"deposit"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Withdraw",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"accountId\": \"dd37e09e-6780-4511-b336-09135acecf6d\",\r\n    \"amount\": 300.0\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:7445/account-management/withdraw",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7001",
+					"path": [
+						"account-management",
+						"withdraw"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

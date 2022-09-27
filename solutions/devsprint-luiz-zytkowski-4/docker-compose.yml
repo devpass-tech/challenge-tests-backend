@@ -1,0 +1,23 @@
+version: '3.3'
+services:
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_DATABASE: 'credit-card'
+      MYSQL_ROOT_PASSWORD: 'password'
+    ports:
+      - '3309:3306'
+    expose:
+      - '3309'
+  anti-fraud:
+    image: incognitowski/devpass-backend-antifraud
+    ports:
+      - '7444:7000'
+    expose:
+      - '7444'
+  account-management:
+    image: incognitowski/devpass-backend-accountmanagement
+    ports:
+      - '7445:7001'
+    expose:
+      - '7445'

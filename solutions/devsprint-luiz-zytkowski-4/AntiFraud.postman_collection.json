@@ -1,0 +1,36 @@
+{
+	"info": {
+		"_postman_id": "fdb66c1a-2ac6-4c5a-81cb-e114da484581",
+		"name": "AntiFraud",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Eligibility",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:7444/anti-fraud/credit-card-eligibility/:cpf",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7000",
+					"path": [
+						"anti-fraud",
+						"credit-card-eligibility",
+						":cpf"
+					],
+					"variable": [
+						{
+							"key": "cpf",
+							"value": "08332046963"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
