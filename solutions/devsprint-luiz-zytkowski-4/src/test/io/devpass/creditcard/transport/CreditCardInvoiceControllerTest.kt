@@ -7,6 +7,10 @@ import io.devpass.creditcard.transport.controllers.CreditCardInvoiceController
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions
+import io.devpass.creditcard.transport.requests.InvoiceCreationRequest
+import io.mockk.every
+import io.mockk.mockk
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
@@ -52,15 +56,39 @@ class CreditCardInvoiceControllerTest {
         }
     }
 
-    private fun getRandomCreditCardInvoice(): CreditCardInvoice {
+    @Test
+    fun `Should generate an invoice`() {
+        val invoiceCreationRequest = InvoiceCreationRequest(creditCardId = "")
+        val invoiceReference = mockCreditCardInvoice()
+        val creditCardInvoiceServiceAdapter = (mockk<ICreditCardInvoiceServiceAdapter> {
+            every { generateInvoice(any()) } returns invoiceReference
+        })
+        val creditCardInvoiceController = CreditCardInvoiceController(creditCardInvoiceServiceAdapter)
+        val result = creditCardInvoiceController.generateInvoice(invoiceCreationRequest)
+        assertEquals(invoiceReference, result)
+    }
+
+    @Test
+    fun `Should throw Exception`() {
+        val invoiceCreationRequest = InvoiceCreationRequest(creditCardId = "")
+        val creditCardInvoiceServiceAdapter = (mockk<ICreditCardInvoiceServiceAdapter> {
+            every { generateInvoice(any()) } throws Exception("Throw Exception for testing")
+        })
+        val creditCardInvoiceController = CreditCardInvoiceController(creditCardInvoiceServiceAdapter)
+        assertThrows<Exception> {
+            creditCardInvoiceController.generateInvoice(invoiceCreationRequest)
+        }
+    }
+
+    private fun mockCreditCardInvoice(): CreditCardInvoice {
         return CreditCardInvoice(
             id = "",
             creditCard = "",
-            month = 1,
-            year = 2002,
-            value = 1000.0,
+            month = 0,
+            year = 0,
+            value = 0.0,
             createdAt = LocalDateTime.now(),
-            paidAt = LocalDateTime.now(),
+            paidAt = null,
         )
     }
 }
