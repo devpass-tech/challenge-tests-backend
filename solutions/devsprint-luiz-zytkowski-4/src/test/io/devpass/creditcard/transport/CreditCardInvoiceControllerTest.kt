@@ -30,7 +30,7 @@ class CreditCardInvoiceControllerTest {
     fun `should get credit card invoice by ID`() {
         val creditCardInvoiceReference = getRandomCreditCardInvoice()
         val creditCardInvoiceServiceAdapter = mockk<ICreditCardInvoiceServiceAdapter> {
-            every { getById(any()) } returns getRandomCreditCardInvoice()
+            every { getById(any()) } returns creditCardInvoiceReference
         }
 
         val creditCardInvoiceController = CreditCardInvoiceController(creditCardInvoiceServiceAdapter)
