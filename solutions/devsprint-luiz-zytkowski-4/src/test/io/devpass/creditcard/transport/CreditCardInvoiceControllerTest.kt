@@ -19,7 +19,7 @@ class CreditCardInvoiceControllerTest() {
         val invoiceCreationRequest = InvoiceCreationRequest(creditCardId = "")
         val invoiceReference = mockCreditCardInvoice()
         val creditCardInvoiceServiceAdapter = (mockk<ICreditCardInvoiceServiceAdapter> {
-            every { generateInvoice(any()) } returns mockCreditCardInvoice()
+            every { generateInvoice(any()) } returns invoiceReference
         })
         val creditCardInvoiceController = CreditCardInvoiceController(creditCardInvoiceServiceAdapter)
         val result = creditCardInvoiceController.generateInvoice(invoiceCreationRequest)
@@ -30,10 +30,10 @@ class CreditCardInvoiceControllerTest() {
     fun `Should throw EntityNotFoundException`() {
         val invoiceCreationRequest = InvoiceCreationRequest(creditCardId = "")
         val creditCardInvoiceServiceAdapter = (mockk<ICreditCardInvoiceServiceAdapter> {
-            every { generateInvoice(any()) } throws EntityNotFoundException("Throw EntityNotFoundException for testing")
+            every { generateInvoice(any()) } throws Exception("Throw Exception for testing")
         })
         val creditCardInvoiceController = CreditCardInvoiceController(creditCardInvoiceServiceAdapter)
-        assertThrows<EntityNotFoundException> {
+        assertThrows<Exception> {
             creditCardInvoiceController.generateInvoice(invoiceCreationRequest)
         }
     }
