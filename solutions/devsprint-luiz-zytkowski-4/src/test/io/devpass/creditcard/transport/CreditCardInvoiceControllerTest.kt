@@ -4,9 +4,6 @@ import io.devpass.creditcard.domain.exceptions.EntityNotFoundException
 import io.devpass.creditcard.domain.objects.CreditCardInvoice
 import io.devpass.creditcard.domainaccess.ICreditCardInvoiceServiceAdapter
 import io.devpass.creditcard.transport.controllers.CreditCardInvoiceController
-import io.mockk.every
-import io.mockk.mockk
-import org.junit.jupiter.api.Assertions
 import io.devpass.creditcard.transport.requests.InvoiceCreationRequest
 import io.mockk.every
 import io.mockk.mockk
@@ -40,7 +37,7 @@ class CreditCardInvoiceControllerTest {
         val creditCardInvoiceController = CreditCardInvoiceController(creditCardInvoiceServiceAdapter)
 
         val result = creditCardInvoiceController.getById(creditCardInvoiceId = "")
-        Assertions.assertEquals(creditCardInvoiceReference, result)
+        assertEquals(creditCardInvoiceReference, result)
     }
 
     @Test
@@ -59,7 +56,7 @@ class CreditCardInvoiceControllerTest {
     @Test
     fun `Should generate an invoice`() {
         val invoiceCreationRequest = InvoiceCreationRequest(creditCardId = "")
-        val invoiceReference = mockCreditCardInvoice()
+        val invoiceReference = getRandomCreditCardInvoice()
         val creditCardInvoiceServiceAdapter = (mockk<ICreditCardInvoiceServiceAdapter> {
             every { generateInvoice(any()) } returns invoiceReference
         })
@@ -80,7 +77,7 @@ class CreditCardInvoiceControllerTest {
         }
     }
 
-    private fun mockCreditCardInvoice(): CreditCardInvoice {
+    private fun getRandomCreditCardInvoice(): CreditCardInvoice {
         return CreditCardInvoice(
             id = "",
             creditCard = "",
