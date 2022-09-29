@@ -3,7 +3,9 @@ package io.devpass.creditcard.transport.controllers
 import io.devpass.creditcard.domain.exceptions.OwnedException
 import io.devpass.creditcard.domainaccess.ICreditCardInvoiceServiceAdapter
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.runs
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -14,7 +16,7 @@ class CreditCardInvoiceControllerTest {
     fun `should pay invoice sucessfully`() {
         val creditCardId = "1234"
         val creditCardInvoiceServiceAdapter = mockk<ICreditCardInvoiceServiceAdapter> {
-            every { payInvoice(any()) } returns Unit
+            every { payInvoice(any()) } just runs
         }
         val creditCardInvoiceController = CreditCardInvoiceController(creditCardInvoiceServiceAdapter)
         val result = creditCardInvoiceController.payInvoice(creditCardId)
