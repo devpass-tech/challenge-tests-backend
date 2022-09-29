@@ -27,7 +27,7 @@ class CreditCardInvoiceControllerTest() {
     }
 
     @Test
-    fun `Should throw EntityNotFoundException`() {
+    fun `Should throw Exception`() {
         val invoiceCreationRequest = InvoiceCreationRequest(creditCardId = "")
         val creditCardInvoiceServiceAdapter = (mockk<ICreditCardInvoiceServiceAdapter> {
             every { generateInvoice(any()) } throws Exception("Throw Exception for testing")
