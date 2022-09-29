@@ -18,7 +18,7 @@ class CreditCardControllerTest {
     fun `Should successfully return a CreditCard`() {
         val creditCardReference = getRandomCreditCard()
         val creditCardServiceAdapter = mockk<ICreditCardServiceAdapter> {
-            every { findCreditCardById(any()) } returns getRandomCreditCard()
+            every { findCreditCardById(any()) } returns creditCardReference
         }
         val creditCardController = CreditCardController(creditCardServiceAdapter)
         val result = creditCardController.findCreditCard("")
