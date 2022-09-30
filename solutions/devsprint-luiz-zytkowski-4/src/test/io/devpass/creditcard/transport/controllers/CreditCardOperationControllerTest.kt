@@ -11,22 +11,17 @@ import java.time.LocalDateTime
 
 class CreditCardOperationControllerTest {
 
-
-    //TESTAR O METODO CHARGE
-    // O METODO CHARGE BATE NO SERIVCE E RETORNA UMA LISTA DE CREDITCARD OP
-
     @Test
-    fun `should return a list of credit card operations`(){
-        //mockar o adapter
+    fun `should return a list of credit card operations`() {
         val request = CreditCardChargeRequest(
             creditCardId = "",
             value = 0.0,
             installments = 1,
             description = "",
 
-        )
+            )
         val creditCardOperation = getRandomCreditCardOperation()
-        val creditCardOperationService = mockk<ICreditCardOperationServiceAdapter>{
+        val creditCardOperationService = mockk<ICreditCardOperationServiceAdapter> {
             every { charge(any()) } returns listOf(creditCardOperation)
         }
 
@@ -37,7 +32,7 @@ class CreditCardOperationControllerTest {
         Assertions.assertEquals(listOf(creditCardOperation), result)
     }
 
-    private fun getRandomCreditCardOperation() : CreditCardOperation{
+    private fun getRandomCreditCardOperation(): CreditCardOperation {
         return CreditCardOperation(
             id = "",
             creditCard = "",
