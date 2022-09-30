@@ -40,9 +40,8 @@ class CreditCardOperationController(
     }
 
     @PutMapping("rollback/{creditCardOperationId}")
-    fun charge(@PathVariable creditCardOperationId: String): String {
+    fun rollback(@PathVariable creditCardOperationId: String): String {
         creditCardOperationServiceAdapter.rollback(creditCardOperationId)
         return "Operation $creditCardOperationId was rolled back successfully"
     }
-
 }
