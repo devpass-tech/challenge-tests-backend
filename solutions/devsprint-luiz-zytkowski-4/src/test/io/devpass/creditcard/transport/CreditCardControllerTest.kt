@@ -63,9 +63,12 @@ class CreditCardControllerTest {
     @Test
     fun `Should raise an exception`() {
         val creditCardCreationRequest = CreditCardCreationRequest(taxId = "", printedName = "")
-        val randomCreditCardReference = getRandomCreditCard()
         val creditCardServiceAdapter = mockk<ICreditCardServiceAdapter> {
             every { requestCreation(any()) } throws Exception("Throw Exception for testing")
+        }
+        val creditCardController = CreditCardController(creditCardServiceAdapter)
+        assertThrows<Exception> {
+            creditCardController.requestCreditCard(creditCardCreationRequest)
         }
     }
 
