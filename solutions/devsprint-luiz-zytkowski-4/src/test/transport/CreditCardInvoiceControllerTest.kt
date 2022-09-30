@@ -14,51 +14,6 @@ import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
 
 internal class CreditCardInvoiceControllerTest {
-
-    @Test
-    fun `Should successfully return a CreditCardInvoiceId`(){
-        val creditCardInvoiceReference = getRandomCreditCardInvoice()
-        val creditCardInvoiceServiceAdapter = mockk<ICreditCardInvoiceServiceAdapter> {
-            every { getById(any()) } returns getRandomCreditCardInvoice()
-        }
-        val creditCardInvoiceController = CreditCardInvoiceController(creditCardInvoiceServiceAdapter)
-        val result = creditCardInvoiceController.getById("")
-        Assertions.assertEquals(creditCardInvoiceReference, result)
-    }
-
-    @Test
-    fun `Should raise an EntityNotFoundException when CreditCardInvoice not found with ID`(){
-        val creditCardInvoiceServiceAdapter = mockk<ICreditCardInvoiceServiceAdapter> {
-            every { getById(any()) } returns null
-        }
-        val creditCardInvoiceController = CreditCardInvoiceController(creditCardInvoiceServiceAdapter)
-        assertThrows<EntityNotFoundException> {
-            creditCardInvoiceController.getById("")
-        }
-    }
-
-    @Test
-    fun `Should successfully generateInvoice`(){
-        val creditCardInvoiceReference = getRandomCreditCardInvoice()
-        val creditCardInvoiceServiceAdapter = mockk<ICreditCardInvoiceServiceAdapter> {
-            every { generateInvoice(any()) } returns getRandomCreditCardInvoice()
-        }
-        val creditCardInvoiceController = CreditCardInvoiceController(creditCardInvoiceServiceAdapter)
-        val result = creditCardInvoiceController.generateInvoice(InvoiceCreationRequest(creditCardId = ""))
-        Assertions.assertEquals(creditCardInvoiceReference, result)
-    }
-
-    @Test
-    fun `Should successfully when an invoice is paid`(){
-        val payInvoiceStringReference = "Invoice paid successfully"
-        val creditCardInvoiceServiceAdapter = mockk<ICreditCardInvoiceServiceAdapter> {
-            every { payInvoice(any()) } returns Unit
-        }
-        val creditCardInvoiceController = CreditCardInvoiceController(creditCardInvoiceServiceAdapter)
-        val result = creditCardInvoiceController.payInvoice(String())
-        Assertions.assertEquals(payInvoiceStringReference, result)
-    }
-
     @Test
     fun `Should successfully return a period`(){
         val creditCardInvoiceReference = getRandomCreditCardInvoice()
