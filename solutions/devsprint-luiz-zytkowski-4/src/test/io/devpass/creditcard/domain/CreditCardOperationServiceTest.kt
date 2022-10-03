@@ -41,43 +41,21 @@ class CreditCardOperationServiceTest {
 
     @Test
     fun `Should return a BusinessRuleException when year is invalid`() {
-        val creditCardReference = getRandomCreditCard()
         val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO>()
-        val creditCardDAO = mockk<ICreditCardDAO> {
-            every { getById(any()) } returns creditCardReference
-        }
-        val creditCardOperationDAO = mockk<ICreditCardOperationDAO> {
-            every {
-                listByPeriod(
-                    creditCardId = "",
-                    month = 12,
-                    year = 0
-                )
-            } throws BusinessRuleException("You must provide a valid year to list operations")
-        }
+        val creditCardDAO = mockk<ICreditCardDAO> ()
+        val creditCardOperationDAO = mockk<ICreditCardOperationDAO> ()
         val creditCardOperationService =
             CreditCardOperationService(creditCardDAO, creditCardInvoiceDAO, creditCardOperationDAO)
         assertThrows<BusinessRuleException> {
-            creditCardOperationService.listByPeriod("", 12, 0)
+            creditCardOperationService.listByPeriod("", 12, -1)
         }
     }
 
     @Test
     fun `Should return a BusinessRuleException when month is invalid`() {
-        val creditCardReference = getRandomCreditCard()
         val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO>()
-        val creditCardDAO = mockk<ICreditCardDAO> {
-            every { getById(any()) } returns creditCardReference
-        }
-        val creditCardOperationDAO = mockk<ICreditCardOperationDAO> {
-            every {
-                listByPeriod(
-                    creditCardId = "",
-                    month = 13,
-                    year = 2000
-                )
-            } throws BusinessRuleException("You must provide a valid month to list operations")
-        }
+        val creditCardDAO = mockk<ICreditCardDAO>()
+        val creditCardOperationDAO = mockk<ICreditCardOperationDAO>()
         val creditCardOperationService =
             CreditCardOperationService(creditCardDAO, creditCardInvoiceDAO, creditCardOperationDAO)
         assertThrows<BusinessRuleException> {
@@ -86,10 +64,22 @@ class CreditCardOperationServiceTest {
     }
 
     @Test
+    fun `Should return a BusinessRuleException when month is negative`() {
+        val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO>()
+        val creditCardDAO = mockk<ICreditCardDAO>()
+        val creditCardOperationDAO = mockk<ICreditCardOperationDAO>()
+        val creditCardOperationService =
+            CreditCardOperationService(creditCardDAO, creditCardInvoiceDAO, creditCardOperationDAO)
+        assertThrows<BusinessRuleException> {
+            creditCardOperationService.listByPeriod("", -1, 2000)
+        }
+    }
+
+    @Test
     fun `Should return a EntityNotFoundException when credit card is null`() {
         val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO>()
         val creditCardDAO = mockk<ICreditCardDAO> {
-            every { getById(any()) }  throws EntityNotFoundException("Credit card not found with ID")
+            every { getById(any()) }  returns null
         }
         val creditCardOperationDAO = mockk<ICreditCardOperationDAO> {
             every {
