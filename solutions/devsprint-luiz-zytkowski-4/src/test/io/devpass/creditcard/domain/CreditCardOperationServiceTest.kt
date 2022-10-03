@@ -10,6 +10,7 @@ import io.devpass.creditcard.domain.objects.CreditCardOperation
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
@@ -96,6 +97,38 @@ class CreditCardOperationServiceTest {
             creditCardOperationService.listByPeriod("", 12, 2000)
         }
     }
+    
+    fun `Should successfully return a CreditCardOperationId`() {
+        val creditCardReference = getRandomCreditCard()
+        val creditCardOperationReference = getRandomCreditCardOperation()
+        val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO>()
+        val creditCardOperationDAO = mockk<ICreditCardOperationDAO> {
+            every { getOperationById(any()) } returns creditCardOperationReference
+        }
+        val creditCardDAO = mockk<ICreditCardDAO> {
+            every { getById(any()) } returns creditCardReference
+        }
+        val creditCardOperationService =
+            CreditCardOperationService(creditCardDAO, creditCardInvoiceDAO, creditCardOperationDAO)
+        val result = creditCardOperationService.getById("")
+        Assertions.assertEquals(creditCardOperationReference, result)
+    }
+
+    @Test
+    fun `Should leak and exception when findCreditCardById throws and exception himself`() {
+        val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO>()
+        val creditCardOperationDAO = mockk<ICreditCardOperationDAO>{
+            every { getOperationById(any()) } throws EntityNotFoundException("Forced exception for unit testing purposes")
+        }
+        val creditCardDAO = mockk<ICreditCardDAO> {
+            every { getById(any()) } throws EntityNotFoundException("Forced exception for unit testing purposes")
+        }
+        val creditCardOperationService =
+            CreditCardOperationService(creditCardDAO, creditCardInvoiceDAO, creditCardOperationDAO)
+        assertThrows<EntityNotFoundException> {
+            creditCardOperationService.listByPeriod("", 12, 2000)
+        }
+    }
 
     private fun getRandomCreditCard(): CreditCard {
         return CreditCard(
@@ -124,4 +157,16 @@ class CreditCardOperationServiceTest {
         )
     }
 
+    private fun getRandomCreditCardOperation(): CreditCardOperation {
+        return CreditCardOperation(
+            id = "",
+            creditCard = "",
+            type = "",
+            value = 0.0,
+            month = 0,
+            year = 0,
+            description = "",
+            createdAt = LocalDateTime.now(),
+        )
+    }
 }
