@@ -1,4 +1,5 @@
 package io.devpass.creditcard.domain
+
 import io.devpass.creditcard.dataaccess.*
 import io.devpass.creditcard.domain.exceptions.BusinessRuleException
 import io.devpass.creditcard.domain.exceptions.EntityNotFoundException
@@ -7,6 +8,11 @@ import io.devpass.creditcard.domain.objects.CreditCardInvoice
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions
+import io.devpass.creditcard.dataaccess.*
+import io.devpass.creditcard.domain.objects.CreditCardInvoice
+import io.mockk.every
+import io.mockk.mockk
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
@@ -92,6 +98,35 @@ class CreditCardInvoiceServiceTest {
         }
     }
 
+    @Test
+    fun `Should successfully return a Credit Card Invoice`() {
+        val creditCardInvoiceReference = getRandomCreditCardInvoice()
+        val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO> {
+            every { getInvoiceById(any()) } returns creditCardInvoiceReference
+        }
+        val creditCardOperationDAO = mockk<ICreditCardOperationDAO>()
+        val antiFraudGateway = mockk<IAccountManagementGateway>()
+        val creditCardDAO = mockk<ICreditCardDAO>()
+        val creditCardInvoiceService =
+            CreditCardInvoiceService(creditCardDAO, creditCardInvoiceDAO, creditCardOperationDAO, antiFraudGateway)
+        val result = creditCardInvoiceService.getById("")
+        assertEquals(creditCardInvoiceReference, result)
+    }
+
+    @Test
+    fun `Should leak an exception when getById throws and exception himself`() {
+        val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO> {
+            every { getInvoiceById(any()) } throws Exception("Forced exception for unit testing purposes")
+        }
+        val creditCardOperationDAO = mockk<ICreditCardOperationDAO>()
+        val antiFraudGateway = mockk<IAccountManagementGateway>()
+        val creditCardDAO = mockk<ICreditCardDAO>()
+        val creditCardInvoiceService =
+            CreditCardInvoiceService(creditCardDAO, creditCardInvoiceDAO, creditCardOperationDAO, antiFraudGateway)
+        assertThrows<Exception> {
+            creditCardInvoiceService.getById("")
+        }
+    }
 
     private fun getRandomCreditCardInvoice(): CreditCardInvoice {
         return CreditCardInvoice(

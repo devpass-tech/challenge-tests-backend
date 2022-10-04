@@ -5,6 +5,7 @@ import io.devpass.creditcard.domain.objects.CreditCardOperation
 import io.devpass.creditcard.domainaccess.ICreditCardOperationServiceAdapter
 import io.devpass.creditcard.transport.controllers.CreditCardOperationController
 import io.mockk.every
+import io.mockk.justRun
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -43,6 +44,28 @@ class CreditCardOperationControllerTest {
         val creditCardOperationController = CreditCardOperationController(creditCardOperationServiceAdapter)
         assertThrows<Exception> {
             creditCardOperationController.getById(creditCardOperationId = "")
+        }
+    }
+
+    @Test
+    fun `Should rollback an operation successfully`() {
+        val creditCardOperationServiceAdapter = mockk<ICreditCardOperationServiceAdapter> {
+            justRun { rollback("FAKE-OPERATION-ID") }
+        }
+        val creditCardOperationId = "FAKE-OPERATION-ID"
+        val creditCardOperationController = CreditCardOperationController(creditCardOperationServiceAdapter)
+        val result = creditCardOperationController.rollback("FAKE-OPERATION-ID")
+        Assertions.assertEquals("Operation $creditCardOperationId was rolled back successfully", result)
+    }
+
+    @Test
+    fun `Should leak and exception when rollback throws and exception himself`() {
+        val creditCardOperationServiceAdapter = mockk<ICreditCardOperationServiceAdapter> {
+            every { rollback("FAKE-OPERATION-ID") } throws EntityNotFoundException("Forced exception for unit testing purposes")
+        }
+        val creditCardOperationController = CreditCardOperationController(creditCardOperationServiceAdapter)
+        assertThrows<EntityNotFoundException> {
+            creditCardOperationController.rollback("FAKE-OPERATION-ID")
         }
     }
 
