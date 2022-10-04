@@ -4,7 +4,7 @@ import io.devpass.creditcard.dataaccess.*
 import io.devpass.creditcard.domain.objects.CreditCardInvoice
 import io.mockk.every
 import io.mockk.mockk
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
@@ -23,11 +23,11 @@ class CreditCardInvoiceServiceTest {
         val creditCardInvoiceService =
             CreditCardInvoiceService(creditCardDAO, creditCardInvoiceDAO, creditCardOperationDAO, antiFraudGateway)
         val result = creditCardInvoiceService.getById("")
-        Assertions.assertEquals(creditCardInvoiceReference, result)
+        assertEquals(creditCardInvoiceReference, result)
     }
 
     @Test
-    fun `Should leak and exception when findCreditCardById throws and exception himself`() {
+    fun `Should leak an exception when getById throws and exception himself`() {
         val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO> {
             every { getInvoiceById(any()) } throws Exception("Forced exception for unit testing purposes")
         }
