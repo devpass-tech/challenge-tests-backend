@@ -5,7 +5,6 @@ import io.devpass.creditcard.domain.objects.CreditCardOperation
 import io.devpass.creditcard.domainaccess.ICreditCardOperationServiceAdapter
 import io.devpass.creditcard.transport.controllers.CreditCardOperationController
 import io.mockk.every
-import io.mockk.just
 import io.mockk.justRun
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions
