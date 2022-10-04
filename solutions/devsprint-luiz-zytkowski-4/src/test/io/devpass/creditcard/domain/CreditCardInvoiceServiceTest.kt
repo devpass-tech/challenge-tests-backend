@@ -1,6 +1,9 @@
 package io.devpass.creditcard.domain
 
-import io.devpass.creditcard.dataaccess.*
+import io.devpass.creditcard.dataaccess.IAccountManagementGateway
+import io.devpass.creditcard.dataaccess.ICreditCardDAO
+import io.devpass.creditcard.dataaccess.ICreditCardInvoiceDAO
+import io.devpass.creditcard.dataaccess.ICreditCardOperationDAO
 import io.devpass.creditcard.domain.exceptions.BusinessRuleException
 import io.devpass.creditcard.domain.exceptions.EntityNotFoundException
 import io.devpass.creditcard.domain.objects.CreditCard
@@ -8,10 +11,6 @@ import io.devpass.creditcard.domain.objects.CreditCardInvoice
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions
-import io.devpass.creditcard.dataaccess.*
-import io.devpass.creditcard.domain.objects.CreditCardInvoice
-import io.mockk.every
-import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
