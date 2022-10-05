@@ -6,11 +6,14 @@ import io.devpass.creditcard.dataaccess.ICreditCardOperationDAO
 import io.devpass.creditcard.domain.exceptions.EntityNotFoundException
 import io.devpass.creditcard.domain.objects.CreditCard
 import io.devpass.creditcard.domain.objects.CreditCardOperation
+import io.devpass.creditcard.domain.objects.CreditCardOperationTypes
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
+import io.mockk.runs
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
 
@@ -18,11 +21,11 @@ class CreditCardOperationServiceTest {
     @Test
     fun `Should successfully rollback`() {
         val creditCardReference = getCreditCardRollback()
-        val creditCardOperationReference = getCreditCardOperationRollback()
+        val creditCardOperationReference = getCreditCardOperationRollback().copy(type = CreditCardOperationTypes.CHARGE )
         val creditCardDAO = mockk<ICreditCardDAO> {
             every { getById(any()) } returns creditCardReference
 
-            every { update(any()) } just return
+            every { update(any()) } just runs
         }
         val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO>()
         val creditCardOperationDAO = mockk<ICreditCardOperationDAO> {
@@ -30,25 +33,21 @@ class CreditCardOperationServiceTest {
 
             every { create(any()) } returns creditCardOperationReference
         }
-        CreditCardOperationService(
-                creditCardDAO,
-                creditCardInvoiceDAO,
-                creditCardOperationDAO,
-        )
-
-        val result = creditCardReference.availableCreditLimit
-
-        Assertions.assertEquals(creditCardReference, result)
+        assertDoesNotThrow {
+            CreditCardOperationService(
+                    creditCardDAO,
+                    creditCardInvoiceDAO,
+                    creditCardOperationDAO,
+            ).rollback("")
+        }
     }
 
     @Test
-    fun `Should leak and exception when getOperationById throws and exception himself`() {
-        val creditCardReference = getCreditCardRollback()
-
+    fun `Should leak and exception when rollback throws and exception himself`() {
         val creditCardDAO = mockk<ICreditCardDAO> {
             every { getById(any()) } throws EntityNotFoundException("Credit card not found")
 
-            every { update(any()) } just return
+            every { update(any()) } just runs
         }
         val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO>()
         val creditCardOperationDAO = mockk<ICreditCardOperationDAO> {
@@ -57,14 +56,13 @@ class CreditCardOperationServiceTest {
             every { create(any()) }  throws EntityNotFoundException("You cannot rollback an operation that isn't of type")
         }
 
-        CreditCardOperationService(
-                creditCardDAO,
-                creditCardInvoiceDAO,
-                creditCardOperationDAO,
-        )
-
-        val result = creditCardReference.availableCreditLimit
-        Assertions.assertEquals(creditCardReference, result)
+        assertThrows<EntityNotFoundException> {
+            CreditCardOperationService(
+                    creditCardDAO,
+                    creditCardInvoiceDAO,
+                    creditCardOperationDAO,
+            ).rollback("")
+        }
     }
     @Test
     fun `Should successfully return a CreditCardOperationId`() {
