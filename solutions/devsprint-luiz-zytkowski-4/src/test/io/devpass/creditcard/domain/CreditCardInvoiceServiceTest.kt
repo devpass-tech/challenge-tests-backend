@@ -6,13 +6,16 @@ import io.devpass.creditcard.dataaccess.ICreditCardInvoiceDAO
 import io.devpass.creditcard.dataaccess.ICreditCardOperationDAO
 import io.devpass.creditcard.domain.exceptions.BusinessRuleException
 import io.devpass.creditcard.domain.exceptions.EntityNotFoundException
+import io.devpass.creditcard.domain.objects.ActionResponse
 import io.devpass.creditcard.domain.objects.CreditCard
 import io.devpass.creditcard.domain.objects.CreditCardInvoice
-import io.mockk.every
-import io.mockk.mockk
+import io.devpass.creditcard.domain.objects.CreditCardOperation
+import io.devpass.creditcard.domain.objects.accountmanagement.Account
+import io.mockk.*
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
 
@@ -127,6 +130,133 @@ class CreditCardInvoiceServiceTest {
         }
     }
 
+    @Test
+    fun `Should successfully pay invoice`() {
+        val creditCardInvoiceReference = getRandomCreditCardInvoice()
+        val creditCardOperationReference = getRandomCreditCardOperation()
+        val creditCardReference = getRandomCreditCard()
+        val accountReference = getRandomAccount()
+        val actionResponseReference = getRandomActionResponse()
+        val antiFraudGateway = mockk<IAccountManagementGateway> {
+            every { getByCPF(any()) } returns accountReference
+            every { withdraw(any()) } returns actionResponseReference
+        }
+        val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO> {
+            every { getInvoiceById(any()) } returns creditCardInvoiceReference
+            justRun { update(any()) }
+        }
+        val creditCardOperationDAO = mockk<ICreditCardOperationDAO> {
+            every { create(any()) } returns creditCardOperationReference
+        }
+        val creditCardDAO = mockk<ICreditCardDAO> {
+            every { getById(any()) } returns creditCardReference
+            justRun { update(any()) }
+        }
+        val creditCardInvoiceService =
+            CreditCardInvoiceService(creditCardDAO, creditCardInvoiceDAO, creditCardOperationDAO, antiFraudGateway)
+        assertDoesNotThrow { creditCardInvoiceService.payInvoice("") }
+    }
+
+    @Test
+    fun `Should throw EntityNotFoundException if invoice not found`() {
+        val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO> {
+            every { getInvoiceById(any()) } returns null
+        }
+        val creditCardOperationDAO = mockk<ICreditCardOperationDAO>()
+        val antiFraudGateway = mockk<IAccountManagementGateway>()
+        val creditCardDAO = mockk<ICreditCardDAO>()
+        val creditCardInvoiceService =
+            CreditCardInvoiceService(creditCardDAO, creditCardInvoiceDAO, creditCardOperationDAO, antiFraudGateway)
+        assertThrows<EntityNotFoundException> {
+            creditCardInvoiceService.payInvoice("")
+        }
+    }
+
+    @Test
+    fun `Should throw BusinessRuleException if invoice is already paid`() {
+        val creditCardInvoiceReference = CreditCardInvoice(
+            "",
+            "",
+            0,
+            0,
+            0.0,
+            LocalDateTime.now(),
+            LocalDateTime.now(),
+        )
+        val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO> {
+            every { getInvoiceById(any()) } returns creditCardInvoiceReference
+        }
+        val creditCardOperationDAO = mockk<ICreditCardOperationDAO>()
+        val antiFraudGateway = mockk<IAccountManagementGateway>()
+        val creditCardDAO = mockk<ICreditCardDAO>()
+        val creditCardInvoiceService =
+            CreditCardInvoiceService(creditCardDAO, creditCardInvoiceDAO, creditCardOperationDAO, antiFraudGateway)
+        assertThrows<BusinessRuleException> {
+            creditCardInvoiceService.payInvoice("")
+        }
+    }
+
+    @Test
+    fun `Should throw EntityNotFoundException if credit card not found`() {
+        val creditCardInvoiceReference = getRandomCreditCardInvoice()
+        val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO> {
+            every { getInvoiceById(any()) } returns creditCardInvoiceReference
+        }
+        val creditCardOperationDAO = mockk<ICreditCardOperationDAO>()
+        val antiFraudGateway = mockk<IAccountManagementGateway>()
+        val creditCardDAO = mockk<ICreditCardDAO> {
+            every { getById(any()) } returns null
+        }
+        val creditCardInvoiceService =
+            CreditCardInvoiceService(creditCardDAO, creditCardInvoiceDAO, creditCardOperationDAO, antiFraudGateway)
+        assertThrows<EntityNotFoundException> {
+            creditCardInvoiceService.payInvoice("")
+        }
+    }
+
+    @Test
+    fun `Should throw BusinessRuleException if account does not have enough funds to pay the invoice`() {
+        val accountReference = getRandomAccount()
+        val creditCardReference = getRandomCreditCard()
+        val creditCardInvoiceReference = CreditCardInvoice(
+            "",
+            "",
+            0,
+            0,
+            10.0,
+            LocalDateTime.now(),
+            null
+        )
+        val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO> {
+            every { getInvoiceById(any()) } returns creditCardInvoiceReference
+        }
+        val creditCardOperationDAO = mockk<ICreditCardOperationDAO>()
+        val antiFraudGateway = mockk<IAccountManagementGateway> {
+            every { getByCPF(any()) } returns accountReference
+        }
+        val creditCardDAO = mockk<ICreditCardDAO> {
+            every { getById(any()) } returns creditCardReference
+        }
+        val creditCardInvoiceService =
+            CreditCardInvoiceService(creditCardDAO, creditCardInvoiceDAO, creditCardOperationDAO, antiFraudGateway)
+        assertThrows<BusinessRuleException> {
+            creditCardInvoiceService.payInvoice("")
+        }
+    }
+
+    private fun getRandomCreditCardOperation(): CreditCardOperation {
+        return CreditCardOperation(
+            id = "",
+            creditCard = "",
+            type = "",
+            value = 0.0,
+            month = 0,
+            year = 0,
+            description = "",
+            createdAt = LocalDateTime.now(),
+        )
+    }
+
     private fun getRandomCreditCardInvoice(): CreditCardInvoice {
         return CreditCardInvoice(
             id = "",
@@ -148,6 +278,20 @@ class CreditCardInvoiceServiceTest {
             printedName = "",
             creditLimit = 0.0,
             availableCreditLimit = 0.0,
+        )
+    }
+
+    private fun getRandomAccount(): Account {
+        return Account(
+            id = "",
+            taxId = "",
+            balance = 0.0
+        )
+    }
+
+    private fun getRandomActionResponse(): ActionResponse {
+        return ActionResponse(
+            message = ""
         )
     }
 }
