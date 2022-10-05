@@ -17,32 +17,34 @@ import java.time.LocalDateTime
 class CreditCardOperationServiceTest {
     @Test
     fun `Should successfully rollback`() {
-        val creditCardOperationReference = getRandomCreditCard()
+        val creditCardReference = getCreditCardRollback()
+        val creditCardOperationReference = getCreditCardOperationRollback()
         val creditCardDAO = mockk<ICreditCardDAO> {
-            every { getById(any()) } returns creditCardOperationReference
+            every { getById(any()) } returns creditCardReference
 
             every { update(any()) } just return
         }
         val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO>()
         val creditCardOperationDAO = mockk<ICreditCardOperationDAO> {
-            every { getOperationById(any())} returns getRandomCreditCardOperation()
+            every { getOperationById(any())} returns creditCardOperationReference
 
-            every { create(any()) } returns getRandomCreditCardOperation()
+            every { create(any()) } returns creditCardOperationReference
         }
-        val creditCardOperationService = CreditCardOperationService(
+        CreditCardOperationService(
                 creditCardDAO,
                 creditCardInvoiceDAO,
                 creditCardOperationDAO,
         )
 
-        val result = creditCardOperationService.rollback("")
+        val result = creditCardReference.availableCreditLimit
 
-        Assertions.assertEquals(creditCardOperationReference, result)
+        Assertions.assertEquals(creditCardReference, result)
     }
 
     @Test
     fun `Should leak and exception when getOperationById throws and exception himself`() {
-        val creditCardOperationReference = getRandomCreditCard()
+        val creditCardReference = getCreditCardRollback()
+
         val creditCardDAO = mockk<ICreditCardDAO> {
             every { getById(any()) } throws EntityNotFoundException("Credit card not found")
 
@@ -54,13 +56,15 @@ class CreditCardOperationServiceTest {
 
             every { create(any()) }  throws EntityNotFoundException("You cannot rollback an operation that isn't of type")
         }
-        val creditCardOperationService = CreditCardOperationService(
+
+        CreditCardOperationService(
                 creditCardDAO,
                 creditCardInvoiceDAO,
                 creditCardOperationDAO,
         )
-        val result = creditCardOperationService.rollback("")
-        Assertions.assertEquals(creditCardOperationReference, result)
+
+        val result = creditCardReference.availableCreditLimit
+        Assertions.assertEquals(creditCardReference, result)
     }
     @Test
     fun `Should successfully return a CreditCardOperationId`() {
@@ -113,6 +117,30 @@ class CreditCardOperationServiceTest {
                 creditCard = "",
                 type = "",
                 value = 0.0,
+                month = 0,
+                year = 0,
+                description = "",
+                createdAt = LocalDateTime.now(),
+        )
+    }
+    private fun getCreditCardRollback(): CreditCard {
+        return CreditCard(
+                id = "",
+                owner = "",
+                number = "",
+                securityCode = "",
+                printedName = "",
+                creditLimit = 50.0,
+                availableCreditLimit = 0.0,
+        )
+    }
+
+    private fun getCreditCardOperationRollback(): CreditCardOperation {
+        return CreditCardOperation(
+                id = "",
+                creditCard = "",
+                type = "",
+                value = 20.0,
                 month = 0,
                 year = 0,
                 description = "",
