@@ -13,10 +13,6 @@ import io.mockk.mockk
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
 import io.devpass.creditcard.data.accountmanagement.response.AccountResponse
-import io.devpass.creditcard.domain.exceptions.GatewayException
-import io.mockk.every
-import io.mockk.mockk
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

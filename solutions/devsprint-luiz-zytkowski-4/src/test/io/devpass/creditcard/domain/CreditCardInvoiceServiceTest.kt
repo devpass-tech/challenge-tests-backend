@@ -11,8 +11,9 @@ import io.devpass.creditcard.domain.objects.CreditCard
 import io.devpass.creditcard.domain.objects.CreditCardInvoice
 import io.devpass.creditcard.domain.objects.CreditCardOperation
 import io.mockk.every
-import io.mockk.mock
 import io.devpass.creditcard.domain.objects.accountmanagement.Account
+import io.mockk.justRun
+import io.mockk.mockk
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -25,7 +26,7 @@ class CreditCardInvoiceServiceTest {
 
     @Test
     fun `Should successfully list operations by period`() {
-        val creditCardInvoiceReference = getCreditCardInvoice()
+        val creditCardInvoiceReference = getCreditCardInvoiceWithValue()
         val creditCardReference = getCreditCard()
         val creditCardOperationDAO = mockk<ICreditCardOperationDAO>()
         val antiFraudGateway = mockk<IAccountManagementGateway>()
@@ -103,7 +104,7 @@ class CreditCardInvoiceServiceTest {
 
     @Test
     fun `Should successfully return a Credit Card Invoice`() {
-        val creditCardInvoiceReference = getCreditCardInvoice()
+        val creditCardInvoiceReference = getCreditCardInvoiceWithValue()
         val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO> {
             every { getInvoiceById(any()) } returns creditCardInvoiceReference
         }
@@ -149,7 +150,7 @@ class CreditCardInvoiceServiceTest {
     @Test
     fun `Should throw invoice already generated exception`() {
         val creditCardReference = getCreditCard()
-        val creditCardInvoiceReference = getCreditCardInvoice()
+        val creditCardInvoiceReference = getCreditCardInvoiceWithValue()
         val creditCardOperationDAO = mockk<ICreditCardOperationDAO>()
         val antiFraudGateway = mockk<IAccountManagementGateway>()
         val creditCardDAO = mockk<ICreditCardDAO> {
@@ -162,14 +163,15 @@ class CreditCardInvoiceServiceTest {
             CreditCardInvoiceService(creditCardDAO, creditCardInvoiceDAO, creditCardOperationDAO, antiFraudGateway)
         assertThrows<BusinessRuleException> {
             creditCardInvoiceService.generateInvoice("")
+        }
     }
-    
+
     @Test
     fun `Should successfully pay invoice`() {
-        val creditCardInvoiceReference = getRandomCreditCardInvoice()
+        val creditCardInvoiceReference = getUnpaidCreditCardInvoice()
         val creditCardOperationReference = getRandomCreditCardOperation()
-        val creditCardReference = getRandomCreditCard()
-        val accountReference = getRandomAccount()
+        val creditCardReference = getCreditCard()
+        val accountReference = getValidAccount()
         val actionResponseReference = getRandomActionResponse()
         val antiFraudGateway = mockk<IAccountManagementGateway> {
             every { getByCPF(any()) } returns accountReference
@@ -233,7 +235,7 @@ class CreditCardInvoiceServiceTest {
     @Test
     fun `Should successfully generate an invoice`() {
         val creditCardReference = getCreditCard()
-        val creditCardInvoicereference = getCreditCardInvoice()
+        val creditCardInvoicereference = getCreditCardInvoiceWithValue()
         val creditCardOperationsReference = getCreditCardOperations()
         val antiFraudGateway = mockk<IAccountManagementGateway>()
         val creditCardDAO = mockk<ICreditCardDAO> {
@@ -241,7 +243,7 @@ class CreditCardInvoiceServiceTest {
         }
         val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO> {
             every { getByPeriod(any(), any(), any()) } returns null
-            every { create(any())} returns creditCardInvoicereference
+            every { create(any()) } returns creditCardInvoicereference
         }
         val creditCardOperationDAO = mockk<ICreditCardOperationDAO> {
             every { listByPeriod(any(), any(), any()) } returns creditCardOperationsReference
@@ -263,7 +265,7 @@ class CreditCardInvoiceServiceTest {
         }
         val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO> {
             every { getByPeriod(any(), any(), any()) } returns null
-            every { create(any())} returns creditCardInvoicereference
+            every { create(any()) } returns creditCardInvoicereference
         }
         val creditCardOperationDAO = mockk<ICreditCardOperationDAO> {
             every { listByPeriod(any(), any(), any()) } returns creditCardOperationsReference
@@ -276,7 +278,7 @@ class CreditCardInvoiceServiceTest {
 
     @Test
     fun `Should throw EntityNotFoundException if credit card not found`() {
-        val creditCardInvoiceReference = getRandomCreditCardInvoice()
+        val creditCardInvoiceReference = getUnpaidCreditCardInvoice()
         val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO> {
             every { getInvoiceById(any()) } returns creditCardInvoiceReference
         }
@@ -295,7 +297,7 @@ class CreditCardInvoiceServiceTest {
     @Test
     fun `Should throw BusinessRuleException if account does not have enough funds to pay the invoice`() {
         val accountReference = getRandomAccount()
-        val creditCardReference = getRandomCreditCard()
+        val creditCardReference = getCreditCard()
         val creditCardInvoiceReference = CreditCardInvoice(
             "",
             "",
@@ -344,6 +346,18 @@ class CreditCardInvoiceServiceTest {
             value = 0.0,
             createdAt = LocalDateTime.now(),
             paidAt = LocalDateTime.now(),
+        )
+    }
+
+    private fun getUnpaidCreditCardInvoice(): CreditCardInvoice {
+        return CreditCardInvoice(
+            id = "",
+            creditCard = "",
+            month = LocalDate.now().monthValue,
+            year = LocalDate.now().year,
+            value = 5.0,
+            createdAt = LocalDateTime.now(),
+            paidAt = null,
         )
     }
 
@@ -398,13 +412,22 @@ class CreditCardInvoiceServiceTest {
                 description = "",
                 createdAt = LocalDateTime.now()
             )
+        )
     }
-    
+
     private fun getRandomAccount(): Account {
         return Account(
             id = "",
             taxId = "",
             balance = 0.0
+        )
+    }
+
+    private fun getValidAccount(): Account {
+        return Account(
+            id = "",
+            taxId = "",
+            balance = 25.00
         )
     }
 
