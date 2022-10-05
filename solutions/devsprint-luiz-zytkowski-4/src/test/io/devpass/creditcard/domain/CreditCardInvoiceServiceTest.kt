@@ -150,7 +150,6 @@ class CreditCardInvoiceServiceTest {
         val creditCardDAO = mockk<ICreditCardDAO> {
             every { getById(any()) } returns creditCardReference
             justRun { update(any()) }
-
         }
         val creditCardInvoiceService =
             CreditCardInvoiceService(creditCardDAO, creditCardInvoiceDAO, creditCardOperationDAO, antiFraudGateway)
