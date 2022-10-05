@@ -23,7 +23,7 @@ class CreditCardInvoiceServiceTest {
     @Test
     fun `Should successfully list operations by period`() {
         val creditCardInvoiceReference = getCreditCardInvoice()
-        val creditCardReference = getRandomCreditCard()
+        val creditCardReference = getCreditCard()
         val creditCardOperationDAO = mockk<ICreditCardOperationDAO>()
         val antiFraudGateway = mockk<IAccountManagementGateway>()
         val creditCardDAO = mockk<ICreditCardDAO> {
@@ -145,7 +145,7 @@ class CreditCardInvoiceServiceTest {
 
     @Test
     fun `Should throw invoice already generated exception`() {
-        val creditCardReference = getRandomCreditCard()
+        val creditCardReference = getCreditCard()
         val creditCardInvoiceReference = getCreditCardInvoice()
         val creditCardOperationDAO = mockk<ICreditCardOperationDAO>()
         val antiFraudGateway = mockk<IAccountManagementGateway>()
@@ -164,9 +164,9 @@ class CreditCardInvoiceServiceTest {
 
     @Test
     fun `Should successfully generate an invoice`() {
-        val creditCardReference = getRandomCreditCard()
+        val creditCardReference = getCreditCard()
         val creditCardInvoicereference = getCreditCardInvoice()
-        val creditCardOperationsReference = getRandomCreditCardOperations()
+        val creditCardOperationsReference = getCreditCardOperations()
         val antiFraudGateway = mockk<IAccountManagementGateway>()
         val creditCardDAO = mockk<ICreditCardDAO> {
             every { getById(any()) } returns creditCardReference
@@ -186,9 +186,9 @@ class CreditCardInvoiceServiceTest {
 
     @Test
     fun `Should successfully generate an invoice with value`() {
-        val creditCardReference = getRandomCreditCard()
+        val creditCardReference = getCreditCard()
         val creditCardInvoicereference = getCreditCardInvoiceWithValue()
-        val creditCardOperationsReference = getRandomCreditCardOperations()
+        val creditCardOperationsReference = getCreditCardOperationsWithValue()
         val antiFraudGateway = mockk<IAccountManagementGateway>()
         val creditCardDAO = mockk<ICreditCardDAO> {
             every { getById(any()) } returns creditCardReference
@@ -230,8 +230,7 @@ class CreditCardInvoiceServiceTest {
         )
     }
 
-
-    private fun getRandomCreditCard(): CreditCard {
+    private fun getCreditCard(): CreditCard {
         return CreditCard(
             id = "",
             owner = "",
@@ -243,13 +242,28 @@ class CreditCardInvoiceServiceTest {
         )
     }
 
-    private fun getRandomCreditCardOperations(): List<CreditCardOperation> {
+    private fun getCreditCardOperations(): List<CreditCardOperation> {
         return listOf(
             CreditCardOperation(
                 id = "",
                 creditCard = "",
                 type = "",
                 value = 0.0,
+                month = 0,
+                year = 0,
+                description = "",
+                createdAt = LocalDateTime.now()
+            )
+        )
+    }
+
+    private fun getCreditCardOperationsWithValue(): List<CreditCardOperation> {
+        return listOf(
+            CreditCardOperation(
+                id = "",
+                creditCard = "",
+                type = "CHARGE",
+                value = 200.0,
                 month = 0,
                 year = 0,
                 description = "",
