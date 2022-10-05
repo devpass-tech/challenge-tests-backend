@@ -7,6 +7,7 @@ import io.devpass.creditcard.domain.exceptions.EntityNotFoundException
 import io.devpass.creditcard.domain.objects.CreditCard
 import io.devpass.creditcard.domain.objects.CreditCardOperation
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -14,7 +15,53 @@ import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
 
 class CreditCardOperationServiceTest {
+    @Test
+    fun `Should successfully rollback`() {
+        val creditCardOperationReference = getRandomCreditCard()
+        val creditCardDAO = mockk<ICreditCardDAO> {
+            every { getById(any()) } returns creditCardOperationReference
 
+            every { update(any()) } just return
+        }
+        val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO>()
+        val creditCardOperationDAO = mockk<ICreditCardOperationDAO> {
+            every { getOperationById(any())} returns getRandomCreditCardOperation()
+
+            every { create(any()) } returns getRandomCreditCardOperation()
+        }
+        val creditCardOperationService = CreditCardOperationService(
+                creditCardDAO,
+                creditCardInvoiceDAO,
+                creditCardOperationDAO,
+        )
+
+        val result = creditCardOperationService.rollback("")
+
+        Assertions.assertEquals(creditCardOperationReference, result)
+    }
+
+    @Test
+    fun `Should leak and exception when getOperationById throws and exception himself`() {
+        val creditCardOperationReference = getRandomCreditCard()
+        val creditCardDAO = mockk<ICreditCardDAO> {
+            every { getById(any()) } throws EntityNotFoundException("Credit card not found")
+
+            every { update(any()) } just return
+        }
+        val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO>()
+        val creditCardOperationDAO = mockk<ICreditCardOperationDAO> {
+            every { getOperationById(any())} throws EntityNotFoundException("Operation not found with ID")
+
+            every { create(any()) }  throws EntityNotFoundException("You cannot rollback an operation that isn't of type")
+        }
+        val creditCardOperationService = CreditCardOperationService(
+                creditCardDAO,
+                creditCardInvoiceDAO,
+                creditCardOperationDAO,
+        )
+        val result = creditCardOperationService.rollback("")
+        Assertions.assertEquals(creditCardOperationReference, result)
+    }
     @Test
     fun `Should successfully return a CreditCardOperationId`() {
         val creditCardReference = getRandomCreditCard()
@@ -27,7 +74,7 @@ class CreditCardOperationServiceTest {
             every { getById(any()) } returns creditCardReference
         }
         val creditCardOperationService =
-            CreditCardOperationService(creditCardDAO, creditCardInvoiceDAO, creditCardOperationDAO)
+                CreditCardOperationService(creditCardDAO, creditCardInvoiceDAO, creditCardOperationDAO)
         val result = creditCardOperationService.getById("")
         Assertions.assertEquals(creditCardOperationReference, result)
     }
@@ -35,14 +82,14 @@ class CreditCardOperationServiceTest {
     @Test
     fun `Should leak and exception when findCreditCardById throws and exception himself`() {
         val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO>()
-        val creditCardOperationDAO = mockk<ICreditCardOperationDAO>{
+        val creditCardOperationDAO = mockk<ICreditCardOperationDAO> {
             every { getOperationById(any()) } throws EntityNotFoundException("Forced exception for unit testing purposes")
         }
         val creditCardDAO = mockk<ICreditCardDAO> {
             every { getById(any()) } throws EntityNotFoundException("Forced exception for unit testing purposes")
         }
         val creditCardOperationService =
-            CreditCardOperationService(creditCardDAO, creditCardInvoiceDAO, creditCardOperationDAO)
+                CreditCardOperationService(creditCardDAO, creditCardInvoiceDAO, creditCardOperationDAO)
         assertThrows<EntityNotFoundException> {
             creditCardOperationService.getById("")
         }
@@ -50,28 +97,27 @@ class CreditCardOperationServiceTest {
 
     private fun getRandomCreditCard(): CreditCard {
         return CreditCard(
-            id = "",
-            owner = "",
-            number = "",
-            securityCode = "",
-            printedName = "",
-            creditLimit = 0.0,
-            availableCreditLimit = 0.0,
+                id = "",
+                owner = "",
+                number = "",
+                securityCode = "",
+                printedName = "",
+                creditLimit = 0.0,
+                availableCreditLimit = 0.0,
         )
     }
 
     private fun getRandomCreditCardOperation(): CreditCardOperation {
         return CreditCardOperation(
-            id = "",
-            creditCard = "",
-            type = "",
-            value = 0.0,
-            month = 0,
-            year = 0,
-            description = "",
-            createdAt = LocalDateTime.now(),
+                id = "",
+                creditCard = "",
+                type = "",
+                value = 0.0,
+                month = 0,
+                year = 0,
+                description = "",
+                createdAt = LocalDateTime.now(),
         )
     }
 }
-
 
