@@ -188,7 +188,7 @@ class CreditCardInvoiceServiceTest {
     fun `Should successfully generate an invoice with value`() {
         val creditCardReference = getRandomCreditCard()
         val creditCardInvoicereference = getCreditCardInvoiceWithValue()
-        val creditCardOperationsReference = getCreditCardOperationsWithValue()
+        val creditCardOperationsReference = getRandomCreditCardOperations()
         val antiFraudGateway = mockk<IAccountManagementGateway>()
         val creditCardDAO = mockk<ICreditCardDAO> {
             every { getById(any()) } returns creditCardReference
@@ -250,31 +250,6 @@ class CreditCardInvoiceServiceTest {
                 creditCard = "",
                 type = "",
                 value = 0.0,
-                month = 0,
-                year = 0,
-                description = "",
-                createdAt = LocalDateTime.now()
-            )
-        )
-    }
-
-    private fun getCreditCardOperationsWithValue(): List<CreditCardOperation> {
-        return listOf(
-            CreditCardOperation(
-                id = "",
-                creditCard = "",
-                type = "",
-                value = 100.0,
-                month = 0,
-                year = 0,
-                description = "",
-                createdAt = LocalDateTime.now()
-            ),
-            CreditCardOperation(
-                id = "",
-                creditCard = "",
-                type = "",
-                value = 100.0,
                 month = 0,
                 year = 0,
                 description = "",
