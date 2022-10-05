@@ -13,6 +13,7 @@ import io.mockk.mockk
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.http.HttpStatus
 import java.net.URL
 
@@ -55,9 +56,9 @@ class AccountManagementGatewayTest {
             )
         }
         FuelManager.instance.client = client
-        val expectedResult = GatewayException("")
         val accountManagementGateway = AccountManagementGateway("http://devpass-unit-test.com")
-        val withdrawMethodErrorResponse = accountManagementGateway.withdraw(Transaction("", 0.0))
-        Assertions.assertEquals(expectedResult, withdrawMethodErrorResponse)
+        assertThrows<GatewayException> {
+            accountManagementGateway.withdraw(Transaction("", 0.0))
+        }
     }
 }
