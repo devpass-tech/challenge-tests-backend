@@ -160,7 +160,7 @@ class CreditCardInvoiceServiceTest {
     @Test
     fun `Should throw EntityNotFoundException if invoice not found`() {
         val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO> {
-            every { getInvoiceById(any()) } throws EntityNotFoundException("Forced exception for unit testing purposes")
+            every { getInvoiceById(any()) } returns null
         }
         val creditCardOperationDAO = mockk<ICreditCardOperationDAO>()
         val antiFraudGateway = mockk<IAccountManagementGateway>()
@@ -205,7 +205,7 @@ class CreditCardInvoiceServiceTest {
         val creditCardOperationDAO = mockk<ICreditCardOperationDAO>()
         val antiFraudGateway = mockk<IAccountManagementGateway>()
         val creditCardDAO = mockk<ICreditCardDAO> {
-            every { getById(any()) } throws EntityNotFoundException("Forced exception for unit testing purposes")
+            every { getById(any()) } returns null
         }
         val creditCardInvoiceService =
             CreditCardInvoiceService(creditCardDAO, creditCardInvoiceDAO, creditCardOperationDAO, antiFraudGateway)
