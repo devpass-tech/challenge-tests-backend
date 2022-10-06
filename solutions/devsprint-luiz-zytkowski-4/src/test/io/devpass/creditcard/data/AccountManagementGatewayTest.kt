@@ -9,12 +9,12 @@ import io.devpass.creditcard.data.accountmanagement.response.AccountResponse
 import io.devpass.creditcard.data.http.response.DefaultHttpResponse
 import io.devpass.creditcard.domain.accountmanagement.AccountCreation
 import io.devpass.creditcard.domain.exceptions.GatewayException
+import io.devpass.creditcard.domain.objects.accountmanagement.Account
 import io.devpass.creditcard.domain.objects.accountmanagement.Transaction
 import io.mockk.every
 import io.mockk.mockk
 import java.net.URL
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
