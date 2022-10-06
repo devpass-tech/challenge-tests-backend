@@ -5,20 +5,20 @@ import com.github.kittinunf.fuel.core.Body
 import com.github.kittinunf.fuel.core.Client
 import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.core.Response
+import io.devpass.creditcard.data.accountmanagement.response.AccountResponse
 import io.devpass.creditcard.data.http.response.DefaultHttpResponse
+import io.devpass.creditcard.domain.accountmanagement.AccountCreation
 import io.devpass.creditcard.domain.exceptions.GatewayException
+import io.devpass.creditcard.domain.objects.accountmanagement.Account
 import io.devpass.creditcard.domain.objects.accountmanagement.Transaction
 import io.mockk.every
 import io.mockk.mockk
+import java.net.URL
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions
-import io.devpass.creditcard.data.accountmanagement.response.AccountResponse
-import io.devpass.creditcard.domain.objects.accountmanagement.Account
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.http.HttpStatus
-import java.net.URL
 
 class AccountManagementGatewayTest {
 
@@ -30,35 +30,35 @@ class AccountManagementGatewayTest {
     }
 
     @Test
-    fun `Should successfully process a transaction using withdraw method`(){
+    fun `Should successfully process a transaction using withdraw method`() {
         val expectedResult = DefaultHttpResponse("")
         val json = jacksonObjectMapper().writeValueAsString(expectedResult)
-        val body = mockk<Body>{
+        val body = mockk<Body> {
             every { toByteArray() } returns json.toByteArray()
             every { toStream() } returns toByteArray().inputStream()
         }
-        val client = mockk<Client>{
-            every { executeRequest(any()) } returns Response (
-                    url = URL("http://devpass-unit-test.com"),
-                    statusCode = HttpStatus.OK.value(),
-                    responseMessage = "OK.",
-                    body = body,
-                    )
+        val client = mockk<Client> {
+            every { executeRequest(any()) } returns Response(
+                url = URL("http://devpass-unit-test.com"),
+                statusCode = HttpStatus.OK.value(),
+                responseMessage = "OK.",
+                body = body,
+            )
         }
         FuelManager.instance.client = client
 
         val accountManagementGateway = AccountManagementGateway("http://devpass-unit-test.com")
-        val withdrawMethodSuccessResponse = accountManagementGateway.withdraw(Transaction("",10.0))
-        Assertions.assertEquals(expectedResult.toActionResponse(), withdrawMethodSuccessResponse)
+        val withdrawMethodSuccessResponse = accountManagementGateway.withdraw(Transaction("", 10.0))
+        assertEquals(expectedResult.toActionResponse(), withdrawMethodSuccessResponse)
     }
 
     @Test
-    fun `Should throw a GatewayException for unsuccessful transactions using withdraw method`(){
-        val client = mockk<Client>{
-            every { executeRequest(any()) } returns Response (
-                    url = URL("http://devpass-unit-test.com"),
-                    statusCode = HttpStatus.UNAUTHORIZED.value(),
-                    responseMessage = "Unable to proceed your request - insufficient funds.",
+    fun `Should throw a GatewayException for unsuccessful transactions using withdraw method`() {
+        val client = mockk<Client> {
+            every { executeRequest(any()) } returns Response(
+                url = URL("http://devpass-unit-test.com"),
+                statusCode = HttpStatus.UNAUTHORIZED.value(),
+                responseMessage = "Unable to proceed your request - insufficient funds.",
             )
         }
         FuelManager.instance.client = client
@@ -91,7 +91,7 @@ class AccountManagementGatewayTest {
     }
 
     @Test
-    fun `Should throw a GatewatException when account isn't found by Tax ID`() {
+    fun `Should throw a GatewayException when account isn't found by Tax ID`() {
         val client = mockk<Client> {
             every { executeRequest(any()) } returns Response(
                 url = URL("http://devpass-account-management-gateway-test.com"),
@@ -141,6 +141,48 @@ class AccountManagementGatewayTest {
         val accountManagementGateway = AccountManagementGateway("http://devpass-account-management-gateway-test.com")
         assertThrows<GatewayException> {
             accountManagementGateway.getAccountById("")
+        }
+    }
+
+    @Test
+    fun `Should create Account successfully`() {
+        val expectedResult = AccountResponse("", "", 0.0)
+        val json = jacksonObjectMapper().writeValueAsString(expectedResult)
+        val body = mockk<Body> {
+            every { toByteArray() } returns json.toByteArray()
+            every { toStream() } returns toByteArray().inputStream()
+        }
+        val client = mockk<Client> {
+            every { executeRequest(any()) } returns Response(
+                url = URL("https://devpass-account-management-gateway-test.com"),
+                statusCode = HttpStatus.OK.value(),
+                responseMessage = "OK",
+                body = body,
+            )
+        }
+        FuelManager.instance.client = client
+
+        val accountManagementGateway = AccountManagementGateway("http://devpass-unit-test.com")
+        val result = accountManagementGateway.createAccount(AccountCreation(""))
+
+        assertEquals(expectedResult.toAccount(), result)
+    }
+
+    @Test
+    fun `Should throw a GatewayException when cannot create an Account`() {
+        val client = mockk<Client> {
+            every { executeRequest(any()) } returns Response(
+                url = URL("https://devpass-account-management-gateway-test.com"),
+                statusCode = HttpStatus.BAD_REQUEST.value(),
+                responseMessage = "Error creating an Account",
+            )
+        }
+        FuelManager.instance.client = client
+
+        val accountManagementGateway = AccountManagementGateway("http://devpass-unit-test.com")
+
+        assertThrows<GatewayException> {
+            accountManagementGateway.createAccount(AccountCreation(""))
         }
     }
 }
