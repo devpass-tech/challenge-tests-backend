@@ -9,6 +9,7 @@ import io.devpass.creditcard.domain.exceptions.OwnedException
 import io.devpass.creditcard.domain.objects.antifraud.CreditCardEligibility
 import io.mockk.every
 import io.mockk.mockk
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -16,6 +17,13 @@ import org.springframework.http.HttpStatus
 import java.net.URL
 
 class AntiFraudGatewayTest {
+
+    private val originalClient = FuelManager.instance.client
+
+    @AfterEach
+    fun afterEach() {
+        FuelManager.instance.client = originalClient
+    }
 
     @Test
     fun `Should get creditCardEligibility for the informed CPF`() {
