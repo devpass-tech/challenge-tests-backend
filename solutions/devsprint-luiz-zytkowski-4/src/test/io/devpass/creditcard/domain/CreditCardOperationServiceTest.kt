@@ -1,5 +1,6 @@
 package io.devpass.creditcard.domain
 
+
 import io.devpass.creditcard.dataaccess.ICreditCardDAO
 import io.devpass.creditcard.dataaccess.ICreditCardInvoiceDAO
 import io.devpass.creditcard.dataaccess.ICreditCardOperationDAO
@@ -25,13 +26,11 @@ class CreditCardOperationServiceTest {
         val creditCardOperationReference = getCreditCardOperationRollback().copy(type = CreditCardOperationTypes.CHARGE )
         val creditCardDAO = mockk<ICreditCardDAO> {
             every { getById(any()) } returns creditCardReference
-
             every { update(any()) } just runs
         }
         val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO>()
         val creditCardOperationDAO = mockk<ICreditCardOperationDAO> {
             every { getOperationById(any())} returns creditCardOperationReference
-
             every { create(any()) } returns creditCardOperationReference
         }
         assertDoesNotThrow {
@@ -42,21 +41,13 @@ class CreditCardOperationServiceTest {
             ).rollback("")
         }
     }
-
     @Test
-    fun `Should leak and exception when rollback throws and exception himself`() {
-        val creditCardDAO = mockk<ICreditCardDAO> {
-            every { getById(any()) } throws EntityNotFoundException("Credit card not found")
-
-            every { update(any()) } just runs
-        }
+    fun `Should leak an exception when the operation has not valid ID`() {
+        val creditCardDAO = mockk<ICreditCardDAO> ()
         val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO>()
         val creditCardOperationDAO = mockk<ICreditCardOperationDAO> {
-            every { getOperationById(any())} throws EntityNotFoundException("Operation not found with ID")
-
-            every { create(any()) }  throws EntityNotFoundException("You cannot rollback an operation that isn't of type")
+            every { getOperationById(any())} returns null
         }
-
         assertThrows<EntityNotFoundException> {
             CreditCardOperationService(
                     creditCardDAO,
@@ -65,6 +56,43 @@ class CreditCardOperationServiceTest {
             ).rollback("")
         }
     }
+    @Test
+    fun `Should leak an exception when the credit card has not valid ID`() {
+        val creditCardOperationReference = getCreditCardOperationRollback().copy(type = CreditCardOperationTypes.CHARGE )
+        val creditCardDAO = mockk<ICreditCardDAO> {
+            every { getById(any()) } returns null
+        }
+        val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO>()
+        val creditCardOperationDAO = mockk<ICreditCardOperationDAO>{
+            every { getOperationById(any())} returns creditCardOperationReference
+            every { create(any()) } returns creditCardOperationReference
+        }
+        assertThrows<EntityNotFoundException> {
+            CreditCardOperationService(
+                    creditCardDAO,
+                    creditCardInvoiceDAO,
+                    creditCardOperationDAO,
+            ).rollback("")
+        }
+    }
+
+    @Test
+    fun `Should return a BusinessRuleException when operation not is a type charge`() {
+        val creditCardOperationReference = getCreditCardOperationRollback().copy(type = CreditCardOperationTypes.INVOICE_PAYMENT )
+        val creditCardDAO = mockk<ICreditCardDAO> ()
+        val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO>()
+        val creditCardOperationDAO = mockk<ICreditCardOperationDAO>{
+            every { getOperationById(any())} returns creditCardOperationReference
+        }
+        assertThrows<BusinessRuleException> {
+            CreditCardOperationService(
+                    creditCardDAO,
+                    creditCardInvoiceDAO,
+                    creditCardOperationDAO,
+            ).rollback("")
+        }
+    }
+
     @Test
     fun `Should successfully list operations by period`() {
         val creditCardOperationReference = getRandomCreditCardOperations()
