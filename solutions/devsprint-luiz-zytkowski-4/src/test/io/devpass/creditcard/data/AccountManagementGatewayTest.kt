@@ -14,6 +14,7 @@ import io.mockk.every
 import io.mockk.mockk
 import java.net.URL
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -102,6 +103,44 @@ class AccountManagementGatewayTest {
         val accountManagementGateway = AccountManagementGateway("http://devpass-account-management-gateway-test.com")
         assertThrows<GatewayException> {
             accountManagementGateway.getByCPF("")
+        }
+    }
+
+    @Test
+    fun `Should find account by ID`() {
+        val expectedResult = Account("", "", 0.0)
+        val json = jacksonObjectMapper().writeValueAsString(expectedResult)
+        val body = mockk<Body> {
+            every { toByteArray() } returns json.toByteArray()
+            every { toStream() } returns toByteArray().inputStream()
+        }
+        val client = mockk<Client> {
+            every { executeRequest(any()) } returns Response(
+                url = URL("http://devpass-account-management-gateway-test.com"),
+                statusCode = HttpStatus.OK.value(),
+                responseMessage = "OK",
+                body = body,
+            )
+        }
+        FuelManager.instance.client = client
+        val accountManagementGateway = AccountManagementGateway("http://devpass-account-management-gateway-test.com")
+        val accountResponse = accountManagementGateway.getAccountById("")
+        assertEquals(expectedResult, accountResponse)
+    }
+
+    @Test
+    fun `Should throw a GatewatException when account isn't found by ID`() {
+        val client = mockk<Client> {
+            every { executeRequest(any()) } returns Response(
+                url = URL("http://devpass-account-management-gateway-test.com"),
+                statusCode = HttpStatus.BAD_REQUEST.value(),
+                responseMessage = "Error finding account by Id",
+            )
+        }
+        FuelManager.instance.client = client
+        val accountManagementGateway = AccountManagementGateway("http://devpass-account-management-gateway-test.com")
+        assertThrows<GatewayException> {
+            accountManagementGateway.getAccountById("")
         }
     }
 
