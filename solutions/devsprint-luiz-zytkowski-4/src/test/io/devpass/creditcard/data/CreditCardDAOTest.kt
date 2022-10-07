@@ -46,6 +46,17 @@ class CreditCardDAOTest {
         }
     }
 
+    @Test
+    fun `Should successfully find a CreditCard by ID`() {
+        val creditCardReference = getCreditCard()
+        val creditCardRepository = mockk<CreditCardRepository> {
+            every { findById(any()) } returns creditCardReference
+        }
+        val creditCardDAO = CreditCardDAO(creditCardRepository)
+        val result = creditCardDAO.getById("")
+        assertEquals(creditCardReference, result)
+    }
+
     private fun getListOfCreditCardEntity(): List<CreditCardEntity> {
         return listOf(
             CreditCardEntity(
