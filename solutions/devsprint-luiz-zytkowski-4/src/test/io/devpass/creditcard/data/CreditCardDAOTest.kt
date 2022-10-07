@@ -11,7 +11,27 @@ import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
 
 class CreditCardDAOTest {
-
+    @Test
+    fun`Should successfully create a CreditCard`() {
+        val creditCardReference = creditCard()
+        val creditCardEntity = getCreditCardEntity()
+        val creditCardRepository = mockk<CreditCardRepository> {
+            every { save(any()) } returns creditCardEntity
+        }
+        val creditCardDAO = CreditCardDAO(creditCardRepository)
+        val result = creditCardDAO.create(creditCard())
+        assertEquals(creditCardReference, result)
+    }
+    @Test
+    fun `Should leak an exception when create throws an exception himself`() {
+        val creditCardRepository = mockk<CreditCardRepository> {
+            every { save(any()) } throws Exception("Credit card hasn't create")
+        }
+        val creditCardDAO = CreditCardDAO(creditCardRepository)
+        assertThrows<Exception> {
+            creditCardDAO.create(creditCard())
+        }
+    }
     @Test
     fun `Should successfully return a CreditCard`() {
         val creditCardReference = getCreditCard()
@@ -71,6 +91,32 @@ class CreditCardDAOTest {
             printedName = "",
             creditLimit = 0.0,
             availableCreditLimit = 0.0,
+        )
+    }
+
+    private fun creditCard(): CreditCard {
+        return CreditCard(
+                id = "",
+                owner = "",
+                number = "",
+                securityCode = "",
+                printedName = "",
+                creditLimit = 0.0,
+                availableCreditLimit = 0.0,
+        )
+    }
+
+    private fun getCreditCardEntity(): CreditCardEntity {
+        return CreditCardEntity(
+            id = "",
+            owner = "",
+            number = "",
+            securityCode = "",
+            printedName = "",
+            creditLimit = 0.0,
+            availableCreditLimit = 0.0,
+            createdAt = LocalDateTime.now(),
+            updatedAt = LocalDateTime.now(),
         )
     }
 }
