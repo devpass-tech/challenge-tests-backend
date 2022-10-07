@@ -21,17 +21,13 @@ import java.time.LocalDateTime
 
 class CreditCardOperationServiceTest {
 
-
-
-    //  CENARIO 5 -  available credit limit < charge value
-
     @Test
-    fun `should execute charge method and return a list of credit card operations`(){
+    fun `should execute charge method and return a list of credit card operations`() {
 
         val creditCardChargeReference = getRandomCreditCardCharge()
         val creditCardOperation = getRandomCreditCardOperation()
 
-        val creditCardDAO = mockk<ICreditCardDAO>{
+        val creditCardDAO = mockk<ICreditCardDAO> {
             every { getById(any()) } returns getRandomCreditCard()
             every { update(any()) } just Runs
         }
@@ -47,14 +43,14 @@ class CreditCardOperationServiceTest {
                 id = "",
                 creditCard = "",
                 month = 1,
-                year =  2022,
+                year = 2022,
                 value = 100.0,
                 createdAt = LocalDateTime.now(),
                 paidAt = LocalDateTime.now(),
             ) andThen (null)
         }
-        val creditCardOperationDAO = mockk<ICreditCardOperationDAO>{
-            every {create(any())} returns creditCardOperation
+        val creditCardOperationDAO = mockk<ICreditCardOperationDAO> {
+            every { create(any()) } returns creditCardOperation
         }
 
         val creditCardOperationService = CreditCardOperationService(
@@ -70,7 +66,7 @@ class CreditCardOperationServiceTest {
     }
 
     @Test
-    fun `should throw a BusinessRuleException when credit card charge value is less than 0`(){
+    fun `should throw a BusinessRuleException when credit card charge value is less than 0`() {
         val creditCardChargeReference = getRandomCreditCardCharge().copy(value = -1.0)
 
         val creditCardDAO = mockk<ICreditCardDAO>()
@@ -89,7 +85,7 @@ class CreditCardOperationServiceTest {
     }
 
     @Test
-    fun `should throw a BusinessRuleException when credit card charge installments is less than 1 or greater than 12`(){
+    fun `should throw a BusinessRuleException when credit card charge installments is less than 1 or greater than 12`() {
         val creditCardChargeReference = getRandomCreditCardCharge().copy(installments = 13)
         val creditCardChargeReferenceTwo = getRandomCreditCardCharge().copy(installments = 0)
 
@@ -112,7 +108,7 @@ class CreditCardOperationServiceTest {
     }
 
     @Test
-    fun `should throw a BusinessRuleException when installments if greater than 1 and credit card charge value is less than 6`(){
+    fun `should throw a BusinessRuleException when installments if greater than 1 and credit card charge value is less than 6`() {
 
         val creditCardChargeReference = getRandomCreditCardCharge().copy(installments = 3, value = 5.0)
 
@@ -134,11 +130,11 @@ class CreditCardOperationServiceTest {
     }
 
     @Test
-    fun `should throw a BusinessRuleException when availabe credit limit is less than the credit card charge value`(){
+    fun `should throw a BusinessRuleException when availabe credit limit is less than the credit card charge value`() {
         val creditCardCharge = getRandomCreditCardCharge().copy(value = 500.0)
         val creditCard = getRandomCreditCard().copy(availableCreditLimit = 50.0)
 
-        val creditCardDAO = mockk<ICreditCardDAO>(){
+        val creditCardDAO = mockk<ICreditCardDAO>() {
             every { getById(any()) } returns creditCard
         }
         val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO>()
@@ -154,10 +150,10 @@ class CreditCardOperationServiceTest {
     }
 
     @Test
-    fun `should throw an EntityNotFoundException when credit card not found`(){
+    fun `should throw an EntityNotFoundException when credit card not found`() {
         val creditCardCharge = getRandomCreditCardCharge()
 
-        val creditCardDAO = mockk<ICreditCardDAO>{
+        val creditCardDAO = mockk<ICreditCardDAO> {
             every { getById(any()) } returns null
         }
         val creditCardIvoiceDAO = mockk<ICreditCardInvoiceDAO>()
@@ -172,19 +168,19 @@ class CreditCardOperationServiceTest {
         assertThrows<EntityNotFoundException> { creditCardOperationService.charge(creditCardCharge) }
     }
 
-    private fun getRandomCreditCard() : CreditCard {
+    private fun getRandomCreditCard(): CreditCard {
         return CreditCard(
             id = "",
             owner = "",
             number = "",
-            securityCode =  "",
+            securityCode = "",
             printedName = "",
             creditLimit = 1000.0,
             availableCreditLimit = 1000.0,
         )
     }
 
-    private fun getRandomCreditCardCharge() : CreditCardCharge {
+    private fun getRandomCreditCardCharge(): CreditCardCharge {
         return CreditCardCharge(
             creditCardId = "1",
             value = 5.0,
@@ -193,19 +189,19 @@ class CreditCardOperationServiceTest {
         )
     }
 
-    private fun getRandomCreditCardInvoice() : CreditCardInvoice {
+    private fun getRandomCreditCardInvoice(): CreditCardInvoice {
         return CreditCardInvoice(
             id = "",
             creditCard = "",
             month = 1,
-            year =  2022,
+            year = 2022,
             value = 100.0,
             createdAt = LocalDateTime.now(),
             paidAt = LocalDateTime.now(),
         )
     }
 
-    private fun getRandomCreditCardOperation() : CreditCardOperation{
+    private fun getRandomCreditCardOperation(): CreditCardOperation {
         return CreditCardOperation(
             id = "",
             creditCard = "",
@@ -214,7 +210,7 @@ class CreditCardOperationServiceTest {
             month = 1,
             year = 2,
             description = "",
-            createdAt =  LocalDateTime.now(),
+            createdAt = LocalDateTime.now(),
         )
     }
 }
