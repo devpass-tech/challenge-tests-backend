@@ -35,11 +35,25 @@ class CreditCardOperationServiceTest {
             every { update(any()) } just Runs
         }
 
-        val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO>{
-            every {getByPeriod( any(), any(), any() ) } returns getRandomCreditCardInvoice()
+        val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO> {
+            every {
+                getByPeriod(
+                    any(),
+                    any(),
+                    any()
+                )
+            } returns CreditCardInvoice(
+                id = "",
+                creditCard = "",
+                month = 1,
+                year =  2022,
+                value = 100.0,
+                createdAt = LocalDateTime.now(),
+                paidAt = LocalDateTime.now(),
+            ) andThen (null)
         }
         val creditCardOperationDAO = mockk<ICreditCardOperationDAO>{
-            every {create(any())} returns getRandomCreditCardOperation()
+            every {create(any())} returns creditCardOperation
         }
 
         val creditCardOperationService = CreditCardOperationService(
@@ -71,7 +85,7 @@ class CreditCardOperationServiceTest {
             creditCardId = "1",
             value = 5.0,
             installments = 1,
-            description = "comprinhas da shein"
+            description = " "
         )
     }
 
