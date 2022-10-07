@@ -16,14 +16,8 @@ import io.mockk.just
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import io.devpass.creditcard.domain.objects.CreditCardOperation
-import io.devpass.creditcard.domain.objects.CreditCardOperationTypes
-import io.mockk.every
-import io.mockk.just
-import io.mockk.mockk
 import io.mockk.runs
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
@@ -387,18 +381,6 @@ class CreditCardOperationServiceTest {
         )
     }
 
-    private fun getRandomCreditCardInvoice(): CreditCardInvoice {
-        return CreditCardInvoice(
-            id = "",
-            creditCard = "",
-            month = 1,
-            year = 2022,
-            value = 100.0,
-            createdAt = LocalDateTime.now(),
-            paidAt = LocalDateTime.now(),
-        )
-    }
-
     private fun getRandomCreditCardOperation(): CreditCardOperation {
         return CreditCardOperation(
             id = "",
@@ -427,18 +409,18 @@ class CreditCardOperationServiceTest {
         )
     }
 
-    private fun getRandomCreditCardOperation(): CreditCardOperation {
-        return CreditCardOperation(
-                id = "",
-                creditCard = "",
-                type = "",
-                value = 0.0,
-                month = 0,
-                year = 0,
-                description = "",
-                createdAt = LocalDateTime.now(),
-        )
-    }
+//    private fun getRandomCreditCardOperation(): CreditCardOperation {
+//        return CreditCardOperation(
+//                id = "",
+//                creditCard = "",
+//                type = "",
+//                value = 0.0,
+//                month = 0,
+//                year = 0,
+//                description = "",
+//                createdAt = LocalDateTime.now(),
+//        )
+//    }
     
     private fun getCreditCardRollback(): CreditCard {
         return CreditCard(
