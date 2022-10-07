@@ -10,7 +10,6 @@ import java.time.LocalDateTime
 
 class CreditCardInvoiceDAOTest {
 
-    //CENÁRIO 1 -> testar o método create e retornar uma creditCardInvoice
     @Test
     fun `should call create method and return a CreditCardInvoice`(){
         val creditCardInvoiceEntity = getRandomCreditCardInvoiceEntity()
