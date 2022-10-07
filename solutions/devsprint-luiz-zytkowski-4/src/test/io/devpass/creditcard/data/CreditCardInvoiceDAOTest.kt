@@ -1,17 +1,16 @@
 package io.devpass.creditcard.data
 
-import io.devpass.creditcard.data.entities.CreditCardEntity
 import io.devpass.creditcard.data.entities.CreditCardInvoiceEntity
 import io.devpass.creditcard.data.repositories.CreditCardInvoiceRepository
-import io.devpass.creditcard.data.repositories.CreditCardRepository
 import io.devpass.creditcard.domain.objects.CreditCardInvoice
-import org.junit.jupiter.api.Assertions.assertEquals
 import io.mockk.every
 import io.mockk.mockk
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
 import java.util.Optional
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class CreditCardInvoiceDAOTest {
   
@@ -99,7 +98,7 @@ class CreditCardInvoiceDAOTest {
 
         val result = creditCardInvoiceDAO.create(creditCardInvoice = creditCardInvoiceEntity.toCreditCardInvoice())
 
-        Assertions.assertEquals(creditCardInvoiceEntity.toCreditCardInvoice(), result)
+        assertEquals(creditCardInvoiceEntity.toCreditCardInvoice(), result)
     }
 
     private fun getCreditCardInvoiceEntity(dateTime: LocalDateTime): CreditCardInvoiceEntity {
@@ -122,8 +121,6 @@ class CreditCardInvoiceDAOTest {
             value = 0.0,
             createdAt = dateTime,
             paidAt = null,
-            createdAt = LocalDateTime.now(),
-            paidAt = null
        )
     }
 
