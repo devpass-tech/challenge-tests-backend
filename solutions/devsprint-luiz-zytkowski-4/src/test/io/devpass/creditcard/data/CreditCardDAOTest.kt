@@ -9,6 +9,7 @@ import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
+import java.util.*
 
 class CreditCardDAOTest {
     @Test
@@ -64,6 +65,17 @@ class CreditCardDAOTest {
         assertThrows<Exception> {
             creditCardDAO.getByTaxId("")
         }
+    }
+
+    @Test
+    fun `Should successfully find a CreditCard by ID`() {
+        val creditCardReference = getCreditCard()
+        val creditCardRepository = mockk<CreditCardRepository> {
+            every { findById(any()) } returns Optional.of(getListOfCreditCardEntity().first())
+        }
+        val creditCardDAO = CreditCardDAO(creditCardRepository)
+        val result = creditCardDAO.getById("")
+        assertEquals(creditCardReference, result)
     }
 
     private fun getListOfCreditCardEntity(): List<CreditCardEntity> {
