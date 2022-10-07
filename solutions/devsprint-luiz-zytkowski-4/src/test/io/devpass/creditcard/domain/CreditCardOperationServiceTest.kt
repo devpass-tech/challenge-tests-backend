@@ -22,7 +22,6 @@ class CreditCardOperationServiceTest {
 
 
 
-    // CERARIO 4 - CREDIT CARD CHARGE INSTALLMENTS > 1 && VALUE <6.0
     //  CENARIO 5 -  available credit limit < charge value
 
     @Test
@@ -111,7 +110,6 @@ class CreditCardOperationServiceTest {
         }
     }
 
-    // CERARIO 4 - CREDIT CARD CHARGE INSTALLMENTS > 1 && VALUE <6.0
     @Test
     fun `should throw an BusinessRuleException when installments if greater than 1 and credit card charge value is less than 6`(){
 
@@ -133,6 +131,27 @@ class CreditCardOperationServiceTest {
             creditCardOperationService.charge(creditCardChargeReference)
         }
     }
+
+    @Test
+    fun `should throw and BusinessRuleException when availabe credit limit is less than the credit card charge value`(){
+        val creditCardCharge = getRandomCreditCardCharge().copy(value = 500.0)
+        val creditCard = getRandomCreditCard().copy(availableCreditLimit = 50.0)
+
+        val creditCardDAO = mockk<ICreditCardDAO>(){
+            every { getById(any()) } returns creditCard
+        }
+        val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO>()
+        val creditCardOperationDAO = mockk<ICreditCardOperationDAO>()
+
+        val creditCardOperationService = CreditCardOperationService(
+            creditCardDAO,
+            creditCardInvoiceDAO,
+            creditCardOperationDAO,
+        )
+
+        assertThrows<BusinessRuleException> { creditCardOperationService.charge(creditCardCharge) }
+    }
+
     private fun getRandomCreditCard() : CreditCard {
         return CreditCard(
             id = "",
