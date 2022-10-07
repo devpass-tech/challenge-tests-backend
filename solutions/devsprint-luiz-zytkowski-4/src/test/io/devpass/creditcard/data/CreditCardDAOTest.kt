@@ -5,10 +5,12 @@ import io.devpass.creditcard.data.entities.CreditCardEntity
 import io.devpass.creditcard.domain.objects.CreditCard
 import org.junit.jupiter.api.Assertions.assertEquals
 import io.mockk.every
+import io.mockk.justRun
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
+import java.util.*
 
 class CreditCardDAOTest {
 
@@ -44,6 +46,32 @@ class CreditCardDAOTest {
         assertThrows<Exception> {
             creditCardDAO.getByTaxId("")
         }
+    }
+
+    @Test
+    fun `Should successfully update a CreditCard`() {
+        val creditCardEntityReference = getCreditCardEntity()
+        val creditCardReference = getCreditCard()
+        val creditCardRepository = mockk<CreditCardRepository>() {
+            every { findById(any()) } returns Optional.of(creditCardEntityReference)
+            justRun { (save(creditCardEntityReference)) }
+        }
+        val creditCardDAO = CreditCardDAO(creditCardRepository)
+        val result = creditCardDAO.update(creditCardReference)
+    }
+
+    private fun getCreditCardEntity(): CreditCardEntity {
+        return CreditCardEntity(
+            id = "",
+            owner = "",
+            number = "",
+            securityCode = "",
+            printedName = "",
+            creditLimit = 0.0,
+            availableCreditLimit = 0.0,
+            createdAt = LocalDateTime.now(),
+            updatedAt = LocalDateTime.now(),
+        )
     }
 
     private fun getListOfCreditCardEntity(): List<CreditCardEntity> {
