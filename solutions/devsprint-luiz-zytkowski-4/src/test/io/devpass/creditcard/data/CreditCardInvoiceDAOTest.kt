@@ -5,13 +5,9 @@ import io.devpass.creditcard.data.repositories.CreditCardInvoiceRepository
 import io.devpass.creditcard.domain.objects.CreditCardInvoice
 import io.mockk.every
 import io.mockk.mockk
-import java.time.LocalDateTime
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import io.mockk.every
-import io.mockk.mockk
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
@@ -95,7 +91,7 @@ class CreditCardInvoiceDAOTest {
     }
    
 
-    fun getRandomCreditCardInvoiceEntity() : CreditCardInvoiceEntity{
+    private fun getRandomCreditCardInvoiceEntity() : CreditCardInvoiceEntity{
         return CreditCardInvoiceEntity(
             id = "",
             creditCard = "",
