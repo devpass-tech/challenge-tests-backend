@@ -21,7 +21,7 @@ import java.time.LocalDateTime
 class CreditCardOperationServiceTest {
 
 
-    // CENARIO 3 - CREDIT CARD CHARGE INSTALLMENTS < 1 || > 12
+
     // CERARIO 4 - CREDIT CARD CHARGE INSTALLMENTS > 1 && VALUE <6.0
     //  CENARIO 5 -  available credit limit < charge value
 
@@ -86,6 +86,29 @@ class CreditCardOperationServiceTest {
         )
 
         assertThrows<BusinessRuleException> { creditCardOperationService.charge(creditCardChargeReference) }
+    }
+
+    @Test
+    fun `should throw an BusinessRuleException when credit card charge installments is less than 1 or greater than 12`(){
+        val creditCardChargeReference = getRandomCreditCardCharge().copy(installments = 13)
+        val creditCardChargeReferenceTwo = getRandomCreditCardCharge().copy(installments = 0)
+
+        val creditCardDAO = mockk<ICreditCardDAO>()
+
+        val creditCardInvoiceDAO = mockk<ICreditCardInvoiceDAO>()
+
+        val creditCardOperationDAO = mockk<ICreditCardOperationDAO>()
+
+        val creditCardOperationService = CreditCardOperationService(
+            creditCardDAO,
+            creditCardInvoiceDAO,
+            creditCardOperationDAO,
+        )
+
+        assertThrows<BusinessRuleException> {
+            creditCardOperationService.charge(creditCardChargeReference)
+            creditCardOperationService.charge(creditCardChargeReferenceTwo)
+        }
     }
 
     private fun getRandomCreditCard() : CreditCard {
