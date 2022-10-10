@@ -2,10 +2,12 @@ package io.devpass.creditcard.data
 
 import io.devpass.creditcard.data.repositories.CreditCardRepository
 import io.devpass.creditcard.data.entities.CreditCardEntity
+import io.devpass.creditcard.domain.exceptions.EntityNotFoundException
 import io.devpass.creditcard.domain.objects.CreditCard
 import org.junit.jupiter.api.Assertions.assertEquals
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
@@ -68,6 +70,32 @@ class CreditCardDAOTest {
     }
 
     @Test
+    fun `Should successfully update a CreditCard`() {
+        val creditCardEntityReference = getCreditCardEntity()
+        val creditCardReference = getCreditCard()
+        val creditCardRepository = mockk<CreditCardRepository>() {
+            every { findById(any()) } returns Optional.of(creditCardEntityReference)
+            every { (save(creditCardEntityReference)) } returns creditCardEntityReference
+        }
+        val creditCardDAO = CreditCardDAO(creditCardRepository)
+        creditCardDAO.update(creditCardReference)
+        verify { creditCardRepository.save(any()) }
+    }
+
+    @Test
+    fun `Should return null if there is no credit card with the id`() {
+        val creditCardReference = getCreditCard()
+        val creditCardEntity = null
+        val creditCardRepository = mockk<CreditCardRepository> {
+            every { findById(any()) }  returns Optional.ofNullable(creditCardEntity)
+        }
+        val creditCardDAO = CreditCardDAO(creditCardRepository)
+        assertThrows<EntityNotFoundException> {
+            creditCardDAO.update(creditCardReference)
+        }
+    }
+    
+    @Test
     fun `Should successfully find a CreditCard by ID`() {
         val creditCardReference = getCreditCard()
         val creditCardRepository = mockk<CreditCardRepository> {
@@ -76,6 +104,20 @@ class CreditCardDAOTest {
         val creditCardDAO = CreditCardDAO(creditCardRepository)
         val result = creditCardDAO.getById("")
         assertEquals(creditCardReference, result)
+    }
+
+    private fun getCreditCardEntity(): CreditCardEntity {
+        return CreditCardEntity(
+            id = "",
+            owner = "",
+            number = "",
+            securityCode = "",
+            printedName = "",
+            creditLimit = 0.0,
+            availableCreditLimit = 0.0,
+            createdAt = LocalDateTime.now(),
+            updatedAt = LocalDateTime.now(),
+        )
     }
 
     private fun getListOfCreditCardEntity(): List<CreditCardEntity> {
