@@ -1,9 +1,8 @@
-package io.devpass.creditcard.transport
+package io.devpass.creditcard.transport.controllers
 
 import io.devpass.creditcard.domain.exceptions.EntityNotFoundException
 import io.devpass.creditcard.domain.objects.CreditCard
 import io.devpass.creditcard.domainaccess.ICreditCardServiceAdapter
-import io.devpass.creditcard.transport.controllers.CreditCardController
 import io.devpass.creditcard.transport.requests.CreditCardCreationRequest
 import io.mockk.every
 import io.mockk.mockk
