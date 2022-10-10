@@ -2,9 +2,11 @@ package io.devpass.creditcard.data
 
 import io.devpass.creditcard.data.entities.CreditCardInvoiceEntity
 import io.devpass.creditcard.data.repositories.CreditCardInvoiceRepository
+import io.devpass.creditcard.domain.exceptions.EntityNotFoundException
 import io.devpass.creditcard.domain.objects.CreditCardInvoice
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import java.time.LocalDateTime
 import java.util.Optional
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -12,8 +14,9 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
+
 class CreditCardInvoiceDAOTest {
-  
+
     @Test
     fun `Should successfully return a CreditCardInvoice`() {
         val dateTime = LocalDateTime.now()
@@ -48,7 +51,7 @@ class CreditCardInvoiceDAOTest {
             creditCardInvoiceDAO.getInvoiceById("")
         }
     }
-    
+
     @Test
     fun `Should return CreditCardInvoice`() {
         val creditCardInvoiceEntityList = getListOfCreditCardInvoiceEntity()
@@ -85,12 +88,12 @@ class CreditCardInvoiceDAOTest {
             creditCardInvoiceDAO.getByPeriod("", 0, 0)
         }
     }
-    
+
     @Test
-    fun `should call create method and return a CreditCardInvoice`(){
+    fun `should call create method and return a CreditCardInvoice`() {
         val creditCardInvoiceEntity = getRandomCreditCardInvoiceEntity()
 
-        val creditCardInvoiceRepository = mockk<CreditCardInvoiceRepository>(){
+        val creditCardInvoiceRepository = mockk<CreditCardInvoiceRepository>() {
             every { save(any()) } returns creditCardInvoiceEntity
         }
 
@@ -100,6 +103,33 @@ class CreditCardInvoiceDAOTest {
 
         assertEquals(creditCardInvoiceEntity.toCreditCardInvoice(), result)
     }
+
+    @Test
+    fun `Should sucessfully update a CreditCardInvoice`() {
+        val creditCardInvoiceEntityReference = getCreditCardInvoiceEntity(LocalDateTime.now())
+        val creditCardInvoiceReference = getCreditCardInvoice(LocalDateTime.now())
+        val creditCardInvoiceRepository = mockk<CreditCardInvoiceRepository>() {
+            every { findById(any()) } returns Optional.of(creditCardInvoiceEntityReference)
+            every { (save(creditCardInvoiceEntityReference)) } returns creditCardInvoiceEntityReference
+        }
+        val creditCardInvoiceDAO = CreditCardInvoiceDAO(creditCardInvoiceRepository)
+        creditCardInvoiceDAO.update(creditCardInvoiceReference)
+        verify { creditCardInvoiceRepository.save(any()) }
+    }
+
+    @Test
+    fun `Should throw an exception when the invoice ID isn't found`() {
+        val creditCardInvoiceEntity = null
+        val creditCardInvoiceReference = getCreditCardInvoice(LocalDateTime.now())
+        val creditCardInvoiceRepository = mockk<CreditCardInvoiceRepository> {
+            every { findById(any()) } returns Optional.ofNullable(creditCardInvoiceEntity)
+        }
+        val creditCardInvoiceDAO = CreditCardInvoiceDAO(creditCardInvoiceRepository)
+        assertThrows<EntityNotFoundException> {
+            creditCardInvoiceDAO.update(creditCardInvoiceReference)
+        }
+    }
+
 
     private fun getCreditCardInvoiceEntity(dateTime: LocalDateTime): CreditCardInvoiceEntity {
         return CreditCardInvoiceEntity(
@@ -113,7 +143,7 @@ class CreditCardInvoiceDAOTest {
     }
 
     private fun getCreditCardInvoice(dateTime: LocalDateTime): CreditCardInvoice {
-      return CreditCardInvoice(
+        return CreditCardInvoice(
             id = "",
             creditCard = "",
             month = 0,
@@ -121,7 +151,7 @@ class CreditCardInvoiceDAOTest {
             value = 0.0,
             createdAt = dateTime,
             paidAt = null,
-       )
+        )
     }
 
     private fun getListOfCreditCardInvoiceEntity(): List<CreditCardInvoiceEntity> {
@@ -136,7 +166,7 @@ class CreditCardInvoiceDAOTest {
         )
     }
 
-    private fun getRandomCreditCardInvoiceEntity() : CreditCardInvoiceEntity{
+    private fun getRandomCreditCardInvoiceEntity(): CreditCardInvoiceEntity {
         return CreditCardInvoiceEntity(
             id = "",
             creditCard = "",
