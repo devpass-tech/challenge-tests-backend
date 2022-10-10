@@ -14,9 +14,8 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-
 class CreditCardInvoiceDAOTest {
-
+  
     @Test
     fun `Should successfully return a CreditCardInvoice`() {
         val dateTime = LocalDateTime.now()
@@ -51,7 +50,7 @@ class CreditCardInvoiceDAOTest {
             creditCardInvoiceDAO.getInvoiceById("")
         }
     }
-
+    
     @Test
     fun `Should return CreditCardInvoice`() {
         val creditCardInvoiceEntityList = getListOfCreditCardInvoiceEntity()
@@ -88,12 +87,12 @@ class CreditCardInvoiceDAOTest {
             creditCardInvoiceDAO.getByPeriod("", 0, 0)
         }
     }
-
+    
     @Test
-    fun `should call create method and return a CreditCardInvoice`() {
+    fun `should call create method and return a CreditCardInvoice`(){
         val creditCardInvoiceEntity = getRandomCreditCardInvoiceEntity()
 
-        val creditCardInvoiceRepository = mockk<CreditCardInvoiceRepository>() {
+        val creditCardInvoiceRepository = mockk<CreditCardInvoiceRepository>(){
             every { save(any()) } returns creditCardInvoiceEntity
         }
 
@@ -143,7 +142,7 @@ class CreditCardInvoiceDAOTest {
     }
 
     private fun getCreditCardInvoice(dateTime: LocalDateTime): CreditCardInvoice {
-        return CreditCardInvoice(
+      return CreditCardInvoice(
             id = "",
             creditCard = "",
             month = 0,
@@ -151,7 +150,7 @@ class CreditCardInvoiceDAOTest {
             value = 0.0,
             createdAt = dateTime,
             paidAt = null,
-        )
+       )
     }
 
     private fun getListOfCreditCardInvoiceEntity(): List<CreditCardInvoiceEntity> {
@@ -166,7 +165,7 @@ class CreditCardInvoiceDAOTest {
         )
     }
 
-    private fun getRandomCreditCardInvoiceEntity(): CreditCardInvoiceEntity {
+    private fun getRandomCreditCardInvoiceEntity() : CreditCardInvoiceEntity{
         return CreditCardInvoiceEntity(
             id = "",
             creditCard = "",
