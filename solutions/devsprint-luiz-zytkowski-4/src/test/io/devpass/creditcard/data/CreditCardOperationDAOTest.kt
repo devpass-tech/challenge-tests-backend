@@ -12,6 +12,28 @@ import org.junit.jupiter.api.assertThrows
 internal class CreditCardOperationDAOTest {
 
     @Test
+    fun `Should successfully return a CreditCardOperation`() {
+        val getListCreditCardOperationReference = listOf<CreditCardOperationEntity>()
+        val creditCardOperationRepository = mockk<CreditCardOperationRepository> {
+            every { listByPeriod(any(), any(), any()) } returns getListCreditCardOperationReference
+        }
+        val creditCardOperationDAO = CreditCardOperationDAO(creditCardOperationRepository)
+        val result = creditCardOperationDAO.listByPeriod("", month = 0, 0)
+        assertEquals(getListCreditCardOperationReference, result)
+    }
+
+    @Test
+    fun `Should leak an exception when listByPeriod throws an exception himself`() {
+        val creditCardOperationRepository = mockk<CreditCardOperationRepository> {
+            every { listByPeriod(any(), any(), any()) } throws Exception("Periods not found")
+        }
+        val creditCardOperationDAO = CreditCardOperationDAO(creditCardOperationRepository)
+        assertThrows<Exception> {
+            creditCardOperationDAO.listByPeriod("", 14, 0)
+        }
+    }
+
+    @Test
     fun `Should Successfully create a CreditCardOperation`() {
         val creditCardOperationEntityReference = getCreditCardOperationEntity()
         val creditCardOperationReference = creditCardOperationEntityReference.toCreditCardOperation()
