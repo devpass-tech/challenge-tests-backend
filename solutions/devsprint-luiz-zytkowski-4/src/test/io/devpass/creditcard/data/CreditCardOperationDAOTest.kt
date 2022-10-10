@@ -2,15 +2,11 @@ package io.devpass.creditcard.data
 
 import io.devpass.creditcard.data.entities.CreditCardOperationEntity
 import io.devpass.creditcard.data.repositories.CreditCardOperationRepository
-import io.mockk.every
-import io.mockk.mockk
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Test
-import java.time.LocalDateTime
-import java.util.Optional
 import io.devpass.creditcard.domain.objects.CreditCardOperation
 import io.mockk.every
 import io.mockk.mockk
+import java.time.LocalDateTime
+import java.util.Optional
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -18,9 +14,9 @@ import org.junit.jupiter.api.assertThrows
 internal class CreditCardOperationDAOTest {
 
     @Test
-    fun `should call getOperationById method and return a CreditCardOperation`(){
+    fun `should call getOperationById method and return a CreditCardOperation`() {
         val creditCardOperationReference = getCreditCardOperationEntity()
-        val creditCardOperationRepository = mockk<CreditCardOperationRepository>(){
+        val creditCardOperationRepository = mockk<CreditCardOperationRepository>() {
             every { findById(any()) } returns Optional.of(creditCardOperationReference)
         }
 
@@ -28,7 +24,20 @@ internal class CreditCardOperationDAOTest {
             creditCardOperationRepository
         )
         val result = creditCardOperation.getOperationById("")
-        Assertions.assertEquals(creditCardOperationReference.toCreditCardOperation(), result)
+        assertEquals(creditCardOperationReference.toCreditCardOperation(), result)
+    }
+
+    @Test
+    fun `Should return null when repository findById returns an empty optional`() {
+        val creditCardOperationRepository = mockk<CreditCardOperationRepository> {
+            every { findById(any()) } returns Optional.ofNullable(null)
+        }
+
+        val creditCardOperation = CreditCardOperationDAO(
+            creditCardOperationRepository
+        )
+        val result = creditCardOperation.getOperationById("")
+        assertEquals(null, result)
     }
 
     @Test
@@ -90,8 +99,7 @@ internal class CreditCardOperationDAOTest {
             month = 2,
             year = 2022,
             description = "",
-            createdAt = LocalDateTime.now()
-            description = ""
+            createdAt = LocalDateTime.now(),
         )
     }
 
@@ -103,7 +111,7 @@ internal class CreditCardOperationDAOTest {
             value = 0.0,
             month = 0,
             year = 0,
-            description = ""
+            description = "",
         )
     }
 }
