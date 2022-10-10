@@ -2,11 +2,12 @@ package io.devpass.creditcard.data
 
 import io.devpass.creditcard.data.repositories.CreditCardRepository
 import io.devpass.creditcard.data.entities.CreditCardEntity
+import io.devpass.creditcard.domain.exceptions.EntityNotFoundException
 import io.devpass.creditcard.domain.objects.CreditCard
 import org.junit.jupiter.api.Assertions.assertEquals
 import io.mockk.every
-import io.mockk.justRun
 import io.mockk.mockk
+import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
@@ -54,10 +55,24 @@ class CreditCardDAOTest {
         val creditCardReference = getCreditCard()
         val creditCardRepository = mockk<CreditCardRepository>() {
             every { findById(any()) } returns Optional.of(creditCardEntityReference)
-            justRun { (save(creditCardEntityReference)) }
+            every { (save(creditCardEntityReference)) } returns creditCardEntityReference
         }
         val creditCardDAO = CreditCardDAO(creditCardRepository)
-        val result = creditCardDAO.update(creditCardReference)
+        creditCardDAO.update(creditCardReference)
+        verify { creditCardRepository.save(any()) }
+    }
+
+    @Test
+    fun `Should return null if there is no credit card with the id`() {
+        val creditCardReference = getCreditCard()
+        val creditCardEntity = null
+        val creditCardRepository = mockk<CreditCardRepository> {
+            every { findById(any()) }  returns Optional.ofNullable(creditCardEntity)
+        }
+        val creditCardDAO = CreditCardDAO(creditCardRepository)
+        assertThrows<EntityNotFoundException> {
+            creditCardDAO.update(creditCardReference)
+        }
     }
 
     private fun getCreditCardEntity(): CreditCardEntity {
