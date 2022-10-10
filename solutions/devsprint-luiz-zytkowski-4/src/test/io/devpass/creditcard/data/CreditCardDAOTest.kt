@@ -106,20 +106,6 @@ class CreditCardDAOTest {
         assertEquals(creditCardReference, result)
     }
 
-    private fun getCreditCardEntity(): CreditCardEntity {
-        return CreditCardEntity(
-            id = "",
-            owner = "",
-            number = "",
-            securityCode = "",
-            printedName = "",
-            creditLimit = 0.0,
-            availableCreditLimit = 0.0,
-            createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now(),
-        )
-    }
-
     private fun getListOfCreditCardEntity(): List<CreditCardEntity> {
         return listOf(
             CreditCardEntity(
